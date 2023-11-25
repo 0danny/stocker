@@ -81,11 +81,12 @@ const Footer = () => {
                 padding={3}
                 justifyContent={"center"}
                 alignItems={"center"}
+                marginTop={3}
             >
                 <Stack direction={"row"} marginBottom={4} spacing={15}>
                     <Stack direction={"column"} spacing={1} alignItems={"center"}>
                         <ShowChartIcon fontSize="large" color="primary" />
-                        <span>Stocker Pty Ltd</span>
+                        <span>Stocker @ 2023</span>
                     </Stack>
 
                     <Stack direction={"column"} spacing={1}>
