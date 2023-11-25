@@ -1,0 +1,15 @@
+{
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "java.compile.nullAnalysis.mode": "automatic",
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+        "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts, ${capture}.css",
+        "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, .gitignore, *.md, pom.xml"
+    },
+    "[java]": {
+        "editor.defaultFormatter": "redhat.java"
+    },
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "prettier.printWidth": 100
+}
