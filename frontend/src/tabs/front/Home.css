@@ -1,0 +1,11 @@
+.front-home-mediumtext {
+    margin-top: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 400;
+}
+
+.front-home-largetext {
+    margin-top: 2rem;
+    font-size: 3rem;
+    font-weight: 600;
+}

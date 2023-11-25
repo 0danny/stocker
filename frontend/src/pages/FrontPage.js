@@ -1,8 +1,11 @@
-import { Tab, Stack, Box } from "@mui/material"
+import { Tab, Stack, Box, Paper, Divider, Button } from "@mui/material"
 import TabContext from "@mui/lab/TabContext"
 import TabList from "@mui/lab/TabList"
 import TabPanel from "@mui/lab/TabPanel"
+
 import ShowChartIcon from "@mui/icons-material/ShowChart"
+import InstagramIcon from "@mui/icons-material/Instagram"
+import FacebookIcon from "@mui/icons-material/FacebookOutlined"
 
 import { useState } from "react"
 import "./FrontPage.css"
@@ -21,7 +24,7 @@ export const FrontPage = () => {
         <>
             <Stack
                 direction="row"
-                sx={{ width: "100%" }}
+                width={"100"}
                 spacing={2}
                 justifyContent="center"
                 alignItems="center"
@@ -62,6 +65,63 @@ export const FrontPage = () => {
                     </TabPanel>
                 </TabContext>
             </Box>
+
+            <Footer />
+        </>
+    )
+}
+
+const Footer = () => {
+    return (
+        <>
+            <Stack
+                width={"100"}
+                sx={{ backgroundColor: "#11508E" }}
+                color={"white"}
+                padding={3}
+                justifyContent={"center"}
+                alignItems={"center"}
+            >
+                <Stack direction={"row"} marginBottom={4} spacing={15}>
+                    <Stack direction={"column"} spacing={1} alignItems={"center"}>
+                        <ShowChartIcon fontSize="large" color="primary" />
+                        <span>Stocker Pty Ltd</span>
+                    </Stack>
+
+                    <Stack direction={"column"} spacing={1}>
+                        <span style={{ fontWeight: "bold" }}>Landing</span>
+                        <span>Home</span>
+                        <span>Products</span>
+                    </Stack>
+
+                    <Stack direction={"column"} spacing={1}>
+                        <span style={{ fontWeight: "bold" }}>Company</span>
+                        <span>Terms & Conditions</span>
+                        <span>Privacy Policy</span>
+                        <span>About Us</span>
+                    </Stack>
+
+                    <Stack direction={"column"} spacing={1}>
+                        <span style={{ fontWeight: "bold" }}>Get in touch</span>
+
+                        <Stack direction={"row"} spacing={2}>
+                            <InstagramIcon />
+                            <FacebookIcon />
+                        </Stack>
+                    </Stack>
+                </Stack>
+
+                <Divider
+                    sx={{
+                        "&::before, &::after": {
+                            borderColor: "white",
+                        },
+                        width: "100%",
+                    }}
+                >
+                    @ 2023 Stocker, All rights reserved.
+                </Divider>
+            </Stack>
         </>
     )
 }
