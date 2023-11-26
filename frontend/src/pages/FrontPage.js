@@ -1,11 +1,22 @@
-import { Tab, Stack, Box, Paper, Divider, Button } from "@mui/material"
+import { Tab, Stack, Divider, Button } from "@mui/material"
 import TabContext from "@mui/lab/TabContext"
 import TabList from "@mui/lab/TabList"
 import TabPanel from "@mui/lab/TabPanel"
+import Modal from "@mui/material/Modal"
+import Card from "@mui/material/Card"
+import CardContent from "@mui/material/CardContent"
+import ShowChart from "@mui/icons-material/ShowChart"
+import Typography from "@mui/material/Typography"
+import TextField from "@mui/material/TextField"
+import CardActions from "@mui/material/CardActions"
+import IconButton from "@mui/material/IconButton"
+import Backdrop from "@mui/material/Backdrop"
+import Fade from "@mui/material/Fade"
 
 import ShowChartIcon from "@mui/icons-material/ShowChart"
 import InstagramIcon from "@mui/icons-material/Instagram"
 import FacebookIcon from "@mui/icons-material/FacebookOutlined"
+import AccountCircleIcon from "@mui/icons-material/AccountCircle"
 
 import { useState } from "react"
 import "./FrontPage.css"
@@ -14,60 +25,159 @@ import { Home } from "../tabs/front/Home"
 import { PlaceHolder } from "../tabs/PlaceHolder"
 
 export const FrontPage = () => {
-    const [value, setValue] = useState("home")
+    const [modalState, setModalState] = useState(false)
+    const handleOpen = () => setModalState(true)
+    const handleClose = () => setModalState(false)
 
-    const handleChange = (event, newValue) => {
-        setValue(newValue)
+    const [tab, setTab] = useState("home")
+
+    const handleTabChange = (event, newTab) => {
+        setTab(newTab)
     }
+
+    //TODO
+    //Fix the tabs when the window size is small.
 
     return (
         <>
-            <Stack
-                direction="row"
-                width={"100"}
-                spacing={2}
-                justifyContent="center"
-                alignItems="center"
-                padding={2}
-                className="frontpage-header"
-            >
-                <ShowChartIcon fontSize="large" color="primary" />
-                <span>Stocker</span>
-            </Stack>
+            <TabContext value={tab}>
+                <Stack direction="row" width={"100"} spacing={2} alignItems="center" padding={2}>
+                    <Stack direction={"row"} className="frontpage-header" spacing={1} flex={1}>
+                        <ShowChartIcon fontSize="large" color="primary" />
+                        <span>Stocker</span>
+                    </Stack>
 
-            <Box sx={{ width: "100%", typography: "body1" }}>
-                <TabContext value={value}>
-                    <Box
-                        sx={{
-                            borderBottom: 1,
-                            borderColor: "divider",
-                            marginLeft: 3,
-                            marginRight: 3,
-                        }}
+                    <TabList
+                        onChange={handleTabChange}
+                        aria-label="main-tab-control"
+                        sx={{ flex: 2 }}
+                        centered
                     >
-                        <TabList onChange={handleChange} aria-label="Main tab control" centered>
-                            <Tab value="home" label="Home" />
-                            <Tab value="t&c" label="Terms & Conditions" />
-                            <Tab value="about" label="About Us" />
-                        </TabList>
-                    </Box>
+                        <Tab value="home" label="Home" />
+                        <Tab value="t&c" label="Terms & Conditions" />
+                        <Tab value="about" label="About Us" />
+                    </TabList>
 
-                    <TabPanel value="home">
-                        <Home />
-                    </TabPanel>
+                    <Stack flex={1}>
+                        <IconButton
+                            aria-label="front-user-icon"
+                            size="large"
+                            color="primary"
+                            onClick={handleOpen}
+                            sx={{ marginLeft: "auto" }}
+                        >
+                            <AccountCircleIcon fontSize="inherit" />
+                        </IconButton>
+                    </Stack>
+                </Stack>
 
-                    <TabPanel value="t&c">
-                        <PlaceHolder />
-                    </TabPanel>
+                <Divider />
 
-                    <TabPanel value="about">
-                        <PlaceHolder />
-                    </TabPanel>
-                </TabContext>
-            </Box>
+                <TabPanel value="home">
+                    <Home />
+                </TabPanel>
+
+                <TabPanel value="t&c">
+                    <PlaceHolder />
+                </TabPanel>
+
+                <TabPanel value="about">
+                    <PlaceHolder />
+                </TabPanel>
+            </TabContext>
 
             <Footer />
+
+            <Modal
+                open={modalState}
+                onClose={handleClose}
+                aria-labelledby="front-auth-modal"
+                aria-describedby="front-auth-modal-description"
+                slots={{ backdrop: Backdrop }}
+                slotProps={{
+                    backdrop: {
+                        timeout: 200,
+                    },
+                }}
+                closeAfterTransition
+            >
+                <AuthenticationModal modalState={modalState} />
+            </Modal>
         </>
+    )
+}
+
+const AuthenticationModal = ({ modalState }) => {
+    return (
+        <Fade in={modalState}>
+            <Card
+                sx={{
+                    width: 400,
+                    borderColor: "primary.main",
+                    borderWidth: "1px",
+                    borderStyle: "solid",
+                    boxShadow: 2,
+                    padding: 2,
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                }}
+            >
+                <CardContent
+                    sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        flexDirection: "column",
+                    }}
+                >
+                    <Stack
+                        direction="row"
+                        width={"100"}
+                        spacing={2}
+                        justifyContent="center"
+                        alignItems="center"
+                        padding={1}
+                    >
+                        <ShowChart fontSize="large" color="primary" />
+                        <Typography variant="h4">Stocker</Typography>
+                    </Stack>
+
+                    <TextField
+                        label="Username"
+                        size="small"
+                        sx={{ marginTop: 3 }}
+                        variant="filled"
+                        fullWidth
+                    />
+
+                    <TextField
+                        label="Password"
+                        size="small"
+                        type={"password"}
+                        sx={{ marginTop: 3 }}
+                        variant="filled"
+                        fullWidth
+                    />
+                </CardContent>
+                <CardActions>
+                    <Stack direction={"column"} width={"100%"} spacing={1.5}>
+                        <Button size="small" variant="contained" fullWidth>
+                            Login
+                        </Button>
+
+                        <Divider sx={{ width: "100%" }}>
+                            <span>Don't have an account?</span>
+                        </Divider>
+
+                        <Button size="small" variant="outlined" fullWidth>
+                            Sign Up
+                        </Button>
+                    </Stack>
+                </CardActions>
+            </Card>
+        </Fade>
     )
 }
 
@@ -83,7 +193,7 @@ const Footer = () => {
                 alignItems={"center"}
                 marginTop={3}
             >
-                <Stack direction={"row"} marginBottom={4} spacing={15}>
+                <Stack direction={"row"} marginBottom={4} spacing={{ xs: 5, md: 15 }}>
                     <Stack direction={"column"} spacing={1} alignItems={"center"}>
                         <ShowChartIcon fontSize="large" color="primary" />
                         <span>Stocker @ 2023</span>

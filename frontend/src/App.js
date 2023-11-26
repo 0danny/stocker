@@ -1,18 +1,26 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { createTheme } from "@mui/material/"
+import { ThemeProvider } from "@mui/material/styles"
 
 import { FrontPage } from "./pages/FrontPage"
 import { Main } from "./pages/Main"
-import { Portal } from "./pages/Portal"
+
+const theme = createTheme({
+    typography: {
+        fontFamily: "Custom",
+    },
+})
 
 export default function App() {
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route index element={<FrontPage />} />
-                <Route path="app" element={<Main />} />
-                <Route path="portal" element={<Portal />} />
-            </Routes>
-        </BrowserRouter>
+        <ThemeProvider theme={theme}>
+            <BrowserRouter>
+                <Routes>
+                    <Route index element={<FrontPage />} />
+                    <Route path="app" element={<Main />} />
+                </Routes>
+            </BrowserRouter>
+        </ThemeProvider>
     )
 }
 

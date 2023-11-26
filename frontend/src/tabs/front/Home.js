@@ -6,6 +6,7 @@ import Card from "@mui/material/Card"
 import CardActions from "@mui/material/CardActions"
 import CardContent from "@mui/material/CardContent"
 import Typography from "@mui/material/Typography"
+import { useTheme } from "@mui/material/styles"
 
 import PlayCircle from "@mui/icons-material/PlayCircleFilledWhiteOutlined"
 import Article from "@mui/icons-material/ArticleOutlined"
@@ -14,16 +15,14 @@ import ErrorIcon from "@mui/icons-material/Error"
 import Filter3Icon from "@mui/icons-material/Filter3"
 import Filter2Icon from "@mui/icons-material/Filter2"
 import Filter1Icon from "@mui/icons-material/Filter1"
-import ListIcon from "@mui/icons-material/List"
+import DoneIcon from "@mui/icons-material/Done"
+
+import { useState } from "react"
 
 import "./Home.css"
-import membersUnderlay from "../../images/front/members-underlay.jpg"
+import membersUnderlay from "../../images/front/bg.jpeg"
 
 export const Home = () => {
-    const GetStarted = () => {
-        window.location.href = "/portal"
-    }
-
     return (
         <Stack
             direction={"column"}
@@ -36,12 +35,7 @@ export const Home = () => {
             <span className="front-home-mediumtext">Sign up now to get started!</span>
 
             <Stack direction={"row"} spacing={2} sx={{ marginTop: 3 }}>
-                <Button
-                    component="label"
-                    variant="contained"
-                    startIcon={<PlayCircle />}
-                    onClick={GetStarted}
-                >
+                <Button component="label" variant="contained" startIcon={<PlayCircle />}>
                     Get Started
                 </Button>
 
@@ -50,8 +44,8 @@ export const Home = () => {
                 </Button>
             </Stack>
 
-            <Stack direction={"row"} color={"gray"} marginTop={3} spacing={1}>
-                <ErrorIcon />
+            <Stack direction={"row"} color={"gray"} marginTop={3}>
+                <ErrorIcon sx={{ marginRight: 1, paddingBottom: "4px" }} />
                 <span style={{ textAlign: "center" }}>
                     Get up and running in minutes with our easy to use library of components or see
                     the query builder for a more customizable experience.
@@ -73,19 +67,19 @@ const Features = () => {
     )
 }
 
-const MembershipItem = ({ name, price, description, features, icon }) => {
+const MembershipItem = ({ name, price, features, icon }) => {
     return (
-        <Card sx={{ width: "100%", display: "flex", flexDirection: "column" }}>
+        <Card sx={{ width: "380px", display: "flex", flexDirection: "column" }}>
             <CardContent>
                 <Typography variant="h5" textAlign={"center"}>
                     {icon} <b>{name}</b> {price}
                 </Typography>
 
-                <Divider sx={{ margin: 2 }} />
-
-                <Typography variant="body2" textAlign={"center"}>
-                    {description}
+                <Typography variant="h6" textAlign={"center"}>
+                    Monthly
                 </Typography>
+
+                <Divider sx={{ margin: 2 }} />
 
                 <List>
                     {features.map(function (feature) {
@@ -93,7 +87,7 @@ const MembershipItem = ({ name, price, description, features, icon }) => {
                             <ListItem>
                                 <ListItemAvatar>
                                     <Avatar>
-                                        <ListIcon />
+                                        <DoneIcon color="primary" />
                                     </Avatar>
                                 </ListItemAvatar>
                                 <ListItemText secondary={feature} />
@@ -113,6 +107,10 @@ const MembershipItem = ({ name, price, description, features, icon }) => {
 }
 
 const Memberships = () => {
+    const theme = useTheme()
+
+    const primaryColor = theme.palette.primary.main
+
     return (
         <>
             <Stack
@@ -129,21 +127,28 @@ const Memberships = () => {
                 alignItems={"center"}
                 padding={3}
             >
-                <h1 style={{ fontWeight: "300" }}>Memberships</h1>
+                <Typography variant="h3" textAlign={"center"} fontWeight={"bold"}>
+                    Choose A{" "}
+                    <span style={{ color: primaryColor, fontStyle: "italic" }}>Membership</span>
+                </Typography>
+
+                <Typography variant="h6" textAlign={"center"}>
+                    Pick a membership below that suits your{" "}
+                    <span style={{ color: primaryColor, fontStyle: "italic" }}>needs.</span>
+                </Typography>
 
                 <Stack
                     direction={{ xs: "column", md: "row" }}
                     spacing={2}
                     marginTop={3}
-                    justifyContent={"start"}
-                    alignItems={"baseline"}
+                    justifyContent={"center"}
+                    alignItems={{ xs: "center", md: "baseline" }}
                     width={"100%"}
                     padding={5}
                 >
                     <MembershipItem
                         name="Basic"
-                        price="$10 per month"
-                        description="Tailored for casual shoppers, this plan offers stock checks on up to 5 websites every hour, perfect for keeping an eye on a variety of items. Users receive timely email notifications, making it a cost-effective choice for essential item monitoring."
+                        price="$5"
                         features={[
                             "Stock checks on up to 5 websites.",
                             "Check frequency: Every hour.",
@@ -154,8 +159,7 @@ const Memberships = () => {
 
                     <MembershipItem
                         name="Deluxe"
-                        price="$20 per month"
-                        description="Designed for avid shoppers and small businesses, this tier includes stock monitoring on up to 15 websites with updates every 30 minutes. It adds the convenience of both email and SMS alerts and prioritized customer support for a seamless tracking experience."
+                        price="$10"
                         features={[
                             "Stock checks on up to 15 websites.",
                             "Check frequency: Every 30 minutes.",
@@ -167,8 +171,7 @@ const Memberships = () => {
 
                     <MembershipItem
                         name="Premium"
-                        price="$30 per month"
-                        description="The ultimate solution for serious shoppers and businesses, offering extensive stock checks on up to 30 websites with options for 15-minute intervals or on-demand updates. This plan encompasses all notification types and enriches user experience with API access, dedicated support, ensuring you're always first to know about restocks of high-demand items like the PS5/Shoe Drops etc."
+                        price="$20"
                         features={[
                             "Stock checks on up to 30 websites.",
                             "Check frequency: Every 15 minutes or on-demand.",
