@@ -20,6 +20,10 @@ import "./Home.css"
 import membersUnderlay from "../../images/front/members-underlay.jpg"
 
 export const Home = () => {
+    const GetStarted = () => {
+        window.location.href = "/portal"
+    }
+
     return (
         <Stack
             direction={"column"}
@@ -32,7 +36,12 @@ export const Home = () => {
             <span className="front-home-mediumtext">Sign up now to get started!</span>
 
             <Stack direction={"row"} spacing={2} sx={{ marginTop: 3 }}>
-                <Button component="label" variant="contained" startIcon={<PlayCircle />}>
+                <Button
+                    component="label"
+                    variant="contained"
+                    startIcon={<PlayCircle />}
+                    onClick={GetStarted}
+                >
                     Get Started
                 </Button>
 
@@ -64,12 +73,12 @@ const Features = () => {
     )
 }
 
-const MembershipItem = ({ planName, price, description, features, icon }) => {
+const MembershipItem = ({ name, price, description, features, icon }) => {
     return (
         <Card sx={{ width: "100%", display: "flex", flexDirection: "column" }}>
             <CardContent>
                 <Typography variant="h5" textAlign={"center"}>
-                    {icon} <b>{planName}</b> {price}
+                    {icon} <b>{name}</b> {price}
                 </Typography>
 
                 <Divider sx={{ margin: 2 }} />
@@ -130,15 +139,10 @@ const Memberships = () => {
                     alignItems={"baseline"}
                     width={"100%"}
                     padding={5}
-                    sx={{
-                        "@media (max-width: 850px)": {
-                            flexDirection: "column",
-                        },
-                    }}
                 >
                     <MembershipItem
-                        planName="Basic"
-                        price="$10"
+                        name="Basic"
+                        price="$10 per month"
                         description="Tailored for casual shoppers, this plan offers stock checks on up to 5 websites every hour, perfect for keeping an eye on a variety of items. Users receive timely email notifications, making it a cost-effective choice for essential item monitoring."
                         features={[
                             "Stock checks on up to 5 websites.",
@@ -149,8 +153,8 @@ const Memberships = () => {
                     />
 
                     <MembershipItem
-                        planName="Deluxe"
-                        price="$20"
+                        name="Deluxe"
+                        price="$20 per month"
                         description="Designed for avid shoppers and small businesses, this tier includes stock monitoring on up to 15 websites with updates every 30 minutes. It adds the convenience of both email and SMS alerts and prioritized customer support for a seamless tracking experience."
                         features={[
                             "Stock checks on up to 15 websites.",
@@ -162,8 +166,8 @@ const Memberships = () => {
                     />
 
                     <MembershipItem
-                        planName="Premium"
-                        price="$30"
+                        name="Premium"
+                        price="$30 per month"
                         description="The ultimate solution for serious shoppers and businesses, offering extensive stock checks on up to 30 websites with options for 15-minute intervals or on-demand updates. This plan encompasses all notification types and enriches user experience with API access, dedicated support, ensuring you're always first to know about restocks of high-demand items like the PS5/Shoe Drops etc."
                         features={[
                             "Stock checks on up to 30 websites.",
