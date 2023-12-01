@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { BrowserRouter, HashRouter, Routes, Route } from "react-router-dom"
 import { createTheme } from "@mui/material/"
 import { ThemeProvider } from "@mui/material/styles"
 
@@ -14,12 +14,12 @@ const theme = createTheme({
 export default function App() {
     return (
         <ThemeProvider theme={theme}>
-            <BrowserRouter>
+            <HashRouter>
                 <Routes>
                     <Route index element={<FrontPage />} />
                     <Route path="app" element={<Main />} />
                 </Routes>
-            </BrowserRouter>
+            </HashRouter>
         </ThemeProvider>
     )
 }

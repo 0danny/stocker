@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 public class User implements UserDetails {
 
     @Id
-    private Integer id;
+    private String id;
 
     private String username;
 

@@ -19,18 +19,18 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
+    private static final String[] WHITE_LIST_URL = { "/*", "/static/**", "/api/v1/auth/**" };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
                 .csrf(csrf -> csrf
                         .disable())
-                .authorizeHttpRequests()
-                .requestMatchers("")
-                .permitAll()
-                .anyRequest()
-                .authenticated()
-                .and()
+                .authorizeHttpRequests(req -> req.requestMatchers(WHITE_LIST_URL)
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated())
                 .sessionManagement(management -> management
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
