@@ -108,6 +108,33 @@ export const FrontPage = () => {
 }
 
 const AuthenticationModal = ({ modalState }) => {
+    const [username, setUsername] = useState("")
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+
+    const loginClicked = () => {}
+
+    const registerClicked = () => {
+        //Do all of the validation on user input before we register.
+        /* Validation 
+            Username -> Not Blank, 3-13 Characters, Only special characters (., _)
+            Email -> Not Blank, Valid Email Address
+            Password -> Not Blank, 6-20 Characters.
+        */
+    }
+
+    const usernameChanged = (event) => {
+        setUsername(event.target.value)
+    }
+
+    const emailChanged = (event) => {
+        setEmail(event.target.value)
+    }
+
+    const passwordChanged = (event) => {
+        setPassword(event.target.value)
+    }
+
     return (
         <Fade in={modalState}>
             <Card
@@ -149,6 +176,8 @@ const AuthenticationModal = ({ modalState }) => {
                         size="small"
                         sx={{ marginTop: 3 }}
                         variant="filled"
+                        value={username}
+                        onChange={usernameChanged}
                         fullWidth
                     />
 
@@ -158,12 +187,14 @@ const AuthenticationModal = ({ modalState }) => {
                         type={"password"}
                         sx={{ marginTop: 3 }}
                         variant="filled"
+                        value={password}
+                        onChange={passwordChanged}
                         fullWidth
                     />
                 </CardContent>
                 <CardActions>
                     <Stack direction={"column"} width={"100%"} spacing={1.5}>
-                        <Button size="small" variant="contained" fullWidth>
+                        <Button size="small" variant="contained" onClick={loginClicked} fullWidth>
                             Login
                         </Button>
 
@@ -171,7 +202,7 @@ const AuthenticationModal = ({ modalState }) => {
                             <span>Don't have an account?</span>
                         </Divider>
 
-                        <Button size="small" variant="outlined" fullWidth>
+                        <Button size="small" variant="outlined" onClick={registerClicked} fullWidth>
                             Sign Up
                         </Button>
                     </Stack>

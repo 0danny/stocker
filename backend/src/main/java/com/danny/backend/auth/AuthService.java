@@ -27,10 +27,17 @@ public class AuthService {
 
     public BaseResponse<String> register(RegisterRequest request) {
 
-        // Ensure the username doesn't already exist.
+        // Could combine these two into a single query if we wanted to, probably would
+        // be more preformant.
 
+        // Ensure the username doesn't already exist.
         if (repository.existsByUsername(request.getUsername())) {
             return new BaseResponse<String>(false, "Username already exists.", null);
+        }
+
+        // Ensure the email doesn't already exist.
+        if (repository.existsByEmail(request.getEmail())) {
+            return new BaseResponse<String>(false, "Email already exists.", null);
         }
 
         var user = User.builder()
