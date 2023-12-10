@@ -4,6 +4,7 @@ import { ThemeProvider } from "@mui/material/styles"
 
 import { FrontPage } from "./pages/FrontPage"
 import { Main } from "./pages/Main"
+import { NotFound } from "./pages/NotFound"
 
 const theme = createTheme({
     typography: {
@@ -14,12 +15,13 @@ const theme = createTheme({
 export default function App() {
     return (
         <ThemeProvider theme={theme}>
-            <HashRouter>
+            <BrowserRouter>
                 <Routes>
                     <Route index element={<FrontPage />} />
-                    <Route path="app" element={<Main />} />
+                    <Route path="/app" element={<Main />} />
+                    <Route path="/*" element={<NotFound />} />
                 </Routes>
-            </HashRouter>
+            </BrowserRouter>
         </ThemeProvider>
     )
 }

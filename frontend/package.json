@@ -21,7 +21,7 @@
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
-        "full-build": "npm run build && robocopy build ../backend/src/main/resources/static /S && cd ../backend && mvnw clean package && java -jar target/backend-0.0.1-SNAPSHOT.jar"
+        "full-build": "npm run build && xcopy build ..\\backend\\src\\main\\resources\\static /E /I /Y && cd ..\\backend && mvnw clean package && java -jar target\\backend-0.0.1-SNAPSHOT.jar"
     },
     "eslintConfig": {
         "extends": [

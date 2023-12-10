@@ -82,9 +82,9 @@ const MembershipItem = ({ name, price, features, icon }) => {
                 <Divider sx={{ margin: 2 }} />
 
                 <List>
-                    {features.map(function (feature) {
+                    {features.map(function (feature, key) {
                         return (
-                            <ListItem>
+                            <ListItem key={key}>
                                 <ListItemAvatar>
                                     <Avatar>
                                         <DoneIcon color="primary" />

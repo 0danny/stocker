@@ -1,4 +1,4 @@
-import { Tab, Stack, Divider, Button } from "@mui/material"
+import { Tab, Stack, Divider, Button, Alert } from "@mui/material"
 import TabContext from "@mui/lab/TabContext"
 import TabList from "@mui/lab/TabList"
 import TabPanel from "@mui/lab/TabPanel"
@@ -18,11 +18,13 @@ import InstagramIcon from "@mui/icons-material/Instagram"
 import FacebookIcon from "@mui/icons-material/FacebookOutlined"
 import AccountCircleIcon from "@mui/icons-material/AccountCircle"
 
-import { useState } from "react"
+import { forwardRef, useState } from "react"
 import "./FrontPage.css"
 
 import { Home } from "../tabs/front/Home"
 import { PlaceHolder } from "../tabs/PlaceHolder"
+import Log from "../components/Logger"
+import { PostRequest } from "../components/Network"
 
 export const FrontPage = () => {
     const [modalState, setModalState] = useState(false)
@@ -107,12 +109,37 @@ export const FrontPage = () => {
     )
 }
 
-const AuthenticationModal = ({ modalState }) => {
+const AuthenticationModal = forwardRef((props, ref) => {
     const [username, setUsername] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
 
-    const loginClicked = () => {}
+    //Alert
+    const [alertState, setAlertState] = useState(false)
+    const [alertMessage, setAlertMessage] = useState("")
+
+    const loginClicked = async () => {
+        //Send the API request.
+
+        var jsonResp = await PostRequest("auth/authenticate", {
+            username: username,
+            password: password,
+        })
+
+        Log(`Received response.`, "AuthModal", jsonResp)
+
+        if (jsonResp.status) {
+            //Save the token to local storage.
+            localStorage.setItem("token", jsonResp.token)
+
+            //Redirect to the dashboard.
+            window.location.href = "/#app"
+        } else {
+            //Display the error message to the user.
+            setAlertState(true)
+            setAlertMessage(jsonResp.message)
+        }
+    }
 
     const registerClicked = () => {
         //Do all of the validation on user input before we register.
@@ -136,7 +163,7 @@ const AuthenticationModal = ({ modalState }) => {
     }
 
     return (
-        <Fade in={modalState}>
+        <Fade in={props.modalState} ref={ref}>
             <Card
                 sx={{
                     width: 400,
@@ -170,6 +197,8 @@ const AuthenticationModal = ({ modalState }) => {
                         <ShowChart fontSize="large" color="primary" />
                         <Typography variant="h4">Stocker</Typography>
                     </Stack>
+
+                    {alertState && <Alert severity="error">{alertMessage}</Alert>}
 
                     <TextField
                         label="Username"
@@ -210,7 +239,7 @@ const AuthenticationModal = ({ modalState }) => {
             </Card>
         </Fade>
     )
-}
+})
 
 const Footer = () => {
     return (
