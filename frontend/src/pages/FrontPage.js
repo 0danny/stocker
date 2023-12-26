@@ -17,6 +17,7 @@ import ShowChartIcon from "@mui/icons-material/ShowChart"
 import InstagramIcon from "@mui/icons-material/Instagram"
 import FacebookIcon from "@mui/icons-material/FacebookOutlined"
 import AccountCircleIcon from "@mui/icons-material/AccountCircle"
+import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn"
 
 import { forwardRef, useState } from "react"
 import "./FrontPage.css"
@@ -114,6 +115,8 @@ const AuthenticationModal = forwardRef((props, ref) => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
 
+    const [signUpMode, setSignUpMode] = useState(false)
+
     //Alert
     const [alertState, setAlertState] = useState(false)
     const [alertMessage, setAlertMessage] = useState("")
@@ -133,7 +136,7 @@ const AuthenticationModal = forwardRef((props, ref) => {
             localStorage.setItem("token", jsonResp.token)
 
             //Redirect to the dashboard.
-            window.location.href = "/#app"
+            window.location.href = "/app"
         } else {
             //Display the error message to the user.
             setAlertState(true)
@@ -141,13 +144,66 @@ const AuthenticationModal = forwardRef((props, ref) => {
         }
     }
 
-    const registerClicked = () => {
+    const registerClicked = async () => {
+        if (!signUpMode) {
+            setSignUpMode(true)
+            return
+        }
+
         //Do all of the validation on user input before we register.
         /* Validation 
             Username -> Not Blank, 3-13 Characters, Only special characters (., _)
             Email -> Not Blank, Valid Email Address
             Password -> Not Blank, 6-20 Characters.
         */
+
+        //Username
+        if (username.length < 3 || username.length > 13) {
+            setAlertState(true)
+            setAlertMessage("Username must be between 3-13 characters.")
+            return
+        }
+
+        if (!username.match(/^[a-zA-Z0-9_.]+$/)) {
+            setAlertState(true)
+            setAlertMessage("Username can only contain letters, numbers, . and _")
+            return
+        }
+
+        //Email
+        if (!email.includes("@")) {
+            setAlertState(true)
+            setAlertMessage("Please enter a valid email address.")
+            return
+        }
+
+        //Password
+        if (password.length < 6 || password.length > 20) {
+            setAlertState(true)
+            setAlertMessage("Password must be between 6-20 characters.")
+            return
+        }
+
+        //Send the API request.
+        var jsonResp = await PostRequest("auth/register", {
+            username: username,
+            email: email,
+            password: password,
+        })
+
+        Log(`Received register response.`, "AuthModal", jsonResp)
+
+        if (jsonResp.status) {
+            //Save the token to local storage.
+            localStorage.setItem("token", jsonResp.token)
+
+            //Redirect to the dashboard.
+            window.location.href = "/app"
+        } else {
+            //Display the error message to the user.
+            setAlertState(true)
+            setAlertMessage(jsonResp.message)
+        }
     }
 
     const usernameChanged = (event) => {
@@ -160,6 +216,14 @@ const AuthenticationModal = forwardRef((props, ref) => {
 
     const passwordChanged = (event) => {
         setPassword(event.target.value)
+    }
+
+    const backPressed = (event) => {
+        setSignUpMode(false)
+
+        //Reset the alert state.
+        setAlertState(false)
+        setAlertMessage("")
     }
 
     return (
@@ -186,6 +250,18 @@ const AuthenticationModal = forwardRef((props, ref) => {
                         flexDirection: "column",
                     }}
                 >
+                    {signUpMode && (
+                        <IconButton
+                            aria-label="auth-modal-back"
+                            size="large"
+                            color="primary"
+                            onClick={backPressed}
+                            sx={{ position: "absolute", top: 10, left: 10 }}
+                        >
+                            <KeyboardReturnIcon fontSize="inherit" />
+                        </IconButton>
+                    )}
+
                     <Stack
                         direction="row"
                         width={"100"}
@@ -210,10 +286,23 @@ const AuthenticationModal = forwardRef((props, ref) => {
                         fullWidth
                     />
 
+                    {signUpMode && (
+                        <TextField
+                            label="Email"
+                            size="small"
+                            sx={{ marginTop: 3 }}
+                            variant="filled"
+                            value={email}
+                            onChange={emailChanged}
+                            type="email"
+                            fullWidth
+                        />
+                    )}
+
                     <TextField
                         label="Password"
                         size="small"
-                        type={"password"}
+                        type="password"
                         sx={{ marginTop: 3 }}
                         variant="filled"
                         value={password}
@@ -223,13 +312,22 @@ const AuthenticationModal = forwardRef((props, ref) => {
                 </CardContent>
                 <CardActions>
                     <Stack direction={"column"} width={"100%"} spacing={1.5}>
-                        <Button size="small" variant="contained" onClick={loginClicked} fullWidth>
-                            Login
-                        </Button>
+                        {!signUpMode && (
+                            <>
+                                <Button
+                                    size="small"
+                                    variant="contained"
+                                    onClick={loginClicked}
+                                    fullWidth
+                                >
+                                    Login
+                                </Button>
 
-                        <Divider sx={{ width: "100%" }}>
-                            <span>Don't have an account?</span>
-                        </Divider>
+                                <Divider sx={{ width: "100%" }}>
+                                    <span>Don't have an account?</span>
+                                </Divider>
+                            </>
+                        )}
 
                         <Button size="small" variant="outlined" onClick={registerClicked} fullWidth>
                             Sign Up

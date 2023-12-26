@@ -31,7 +31,13 @@ public class AuthController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<BaseResponse<String>> authenticate(@RequestBody AuthRequest request) {
+    public ResponseEntity<BaseResponse<String>> authenticate(@Valid @RequestBody AuthRequest request,
+            BindingResult result) {
+
+        if (result.hasErrors()) {
+            return ResponseEntity.ok(new BaseResponse<String>(false, "Validation error.", null));
+        }
+
         return ResponseEntity.ok(service.authenticate(request));
     }
 
