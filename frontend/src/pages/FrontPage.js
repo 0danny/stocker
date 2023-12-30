@@ -133,7 +133,7 @@ const AuthenticationModal = forwardRef((props, ref) => {
 
         if (jsonResp.status) {
             //Save the token to local storage.
-            localStorage.setItem("token", jsonResp.token)
+            localStorage.setItem("token", jsonResp.payload)
 
             //Redirect to the dashboard.
             window.location.href = "/app"
@@ -195,7 +195,7 @@ const AuthenticationModal = forwardRef((props, ref) => {
 
         if (jsonResp.status) {
             //Save the token to local storage.
-            localStorage.setItem("token", jsonResp.token)
+            localStorage.setItem("token", jsonResp.payload)
 
             //Redirect to the dashboard.
             window.location.href = "/app"

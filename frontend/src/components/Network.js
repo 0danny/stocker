@@ -1,16 +1,22 @@
 import Log from "./Logger"
+import { getAuthToken } from "./JWT"
 
 const baseURL = process.env.NODE_ENV !== "production" ? "http://localhost:8080/api/v1" : "/api/v1"
 //We are using relative paths in this file in order to pick our endpoint.
 
 //Post method using fetch
-const PostRequest = (path, data) => {
+const PostRequest = (path, data, useAuth = false) => {
     Log(`Making POST request to ${path} with data - `, "Network", data)
+
+    var headers = {
+        "Content-Type": "application/json",
+    }
+
+    if (useAuth) headers["Authorization"] = `Bearer ${getAuthToken()}`
+
     return fetch(`${baseURL}/${path}`, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
+        headers: headers,
         body: JSON.stringify(data),
     })
         .then((response) => {
@@ -30,11 +36,16 @@ const PostRequest = (path, data) => {
 }
 
 //Get method using fetch
-const GetRequest = (path) => {
+const GetRequest = (path, useAuth = false) => {
     Log(`Making GET request to ${path}`, "Network")
+
+    var headers = {}
+
+    if (useAuth) headers["Authorization"] = `Bearer ${getAuthToken()}`
 
     return fetch(`${baseURL}/${path}`, {
         method: "GET",
+        headers: headers,
     })
         .then((response) => {
             if (response.status === 200) {
