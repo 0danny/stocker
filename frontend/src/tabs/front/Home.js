@@ -147,37 +147,39 @@ const Memberships = () => {
                     padding={5}
                 >
                     <MembershipItem
-                        name="Basic"
-                        price="$5"
+                        name="Explorer"
+                        price="$5 USD"
                         features={[
                             "Stock checks on up to 5 websites.",
                             "Check frequency: Every hour.",
                             "Email notifications for stock updates.",
+                            "Unlimited access to Stocker marketplace.",
                         ]}
                         icon={<Filter3Icon color="primary" />}
                     />
 
                     <MembershipItem
-                        name="Deluxe"
-                        price="$10"
+                        name="Enthusiast"
+                        price="$10 USD"
                         features={[
                             "Stock checks on up to 15 websites.",
                             "Check frequency: Every 30 minutes.",
                             "Email and SMS notifications for stock updates.",
+                            "Unlimited access to Stocker marketplace.",
                             "Priority customer support.",
                         ]}
                         icon={<Filter2Icon color="secondary" />}
                     />
 
                     <MembershipItem
-                        name="Premium"
-                        price="$20"
+                        name="Professional"
+                        price="$15 USD"
                         features={[
-                            "Stock checks on up to 30 websites.",
-                            "Check frequency: Every 15 minutes or on-demand.",
-                            "Email, SMS, and mobile app notifications for stock updates.",
-                            "API access for integration with other tools and platforms.",
-                            "Dedicated account manager and 24/7 customer support.",
+                            "Stock checks on up to 25 websites.",
+                            "Check frequency: Every 15 minutes.",
+                            "Email and SMS notifications for stock updates.",
+                            "Unlimited access to Stocker marketplace.",
+                            "Priority customer support.",
                         ]}
                         icon={<Filter1Icon color="success" />}
                     />

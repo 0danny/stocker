@@ -123,6 +123,11 @@ const AuthenticationModal = forwardRef((props, ref) => {
 
     const loginClicked = async () => {
         //Send the API request.
+        if (username == "" || password == "") {
+            setAlertState(true)
+            setAlertMessage("Please enter a username and password.")
+            return
+        }
 
         var jsonResp = await PostRequest("auth/authenticate", {
             username: username,
@@ -151,6 +156,7 @@ const AuthenticationModal = forwardRef((props, ref) => {
         }
 
         //Do all of the validation on user input before we register.
+
         /* Validation 
             Username -> Not Blank, 3-13 Characters, Only special characters (., _)
             Email -> Not Blank, Valid Email Address

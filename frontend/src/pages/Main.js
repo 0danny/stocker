@@ -74,7 +74,7 @@ export const Main = () => {
                             spacing={1}
                             justifyContent="center"
                             alignItems="center"
-                            padding={3}
+                            padding={4}
                         >
                             <ShowChart fontSize="large" color="primary" />
                             <Typography fontSize={28}>Stocker</Typography>
