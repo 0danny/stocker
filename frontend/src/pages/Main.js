@@ -14,15 +14,15 @@ import SettingsIcon from "@mui/icons-material/Settings"
 import AccountCircleIcon from "@mui/icons-material/AccountCircle"
 
 import Log from "../components/Logger"
-import { setAuthToken } from "../components/JWT"
 import { GetRequest } from "../components/Network"
 
 import "./Main.css"
 
 export const Main = () => {
-    const [username, setUsername] = useState("Unknown")
     const [tab, setTab] = useState("home")
-    const [userDetails, setUserDetails] = useState({})
+    const [userDetails, setUserDetails] = useState({
+        username: "Unknown",
+    })
 
     const handleTabChange = (event, newTab) => {
         setTab(newTab)
@@ -30,30 +30,19 @@ export const Main = () => {
 
     const getUserDetails = async () => {
         //Get user details.
-        var jsonResp = await GetRequest("user/me", true)
+        var jsonResp = await GetRequest("user/me")
 
         Log(`Received user details.`, "AuthModal", jsonResp)
 
         if (jsonResp.status) {
             setUserDetails(jsonResp.payload)
-            setUsername(jsonResp.payload.username)
+        } else {
+            //Redirect to home.
+            window.location.href = "/"
         }
     }
 
     useEffect(() => {
-        //Check if the token is set in local storage.
-        var jwtToken = localStorage.getItem("token")
-
-        if (jwtToken == "undefined" || jwtToken == null) {
-            Log(`No token found in local storage.`, "Main")
-
-            window.location.href = "/"
-        } else {
-            setAuthToken(jwtToken)
-
-            Log(`Current token is:`, "Main", jwtToken)
-        }
-
         getUserDetails()
     }, [])
 
@@ -136,7 +125,7 @@ export const Main = () => {
                         alignItems="center"
                     >
                         <Typography fontSize={18} marginRight={1} marginBottom={0.5}>
-                            {username}
+                            {userDetails.username}
                         </Typography>
                         <AccountCircleIcon fontSize="large" color="primary" />
                     </Stack>

@@ -5,6 +5,7 @@ import { ThemeProvider } from "@mui/material/styles"
 import { FrontPage } from "./pages/FrontPage"
 import { Main } from "./pages/Main"
 import { NotFound } from "./pages/NotFound"
+import { Success } from "./pages/Success"
 
 const theme = createTheme({
     typography: {
@@ -19,6 +20,7 @@ export default function App() {
                 <Routes>
                     <Route index element={<FrontPage />} />
                     <Route path="/app" element={<Main />} />
+                    <Route path="/success" element={<Success />} />
                     <Route path="/*" element={<NotFound />} />
                 </Routes>
             </BrowserRouter>

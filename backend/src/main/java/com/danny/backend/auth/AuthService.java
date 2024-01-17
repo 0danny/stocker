@@ -1,6 +1,7 @@
 package com.danny.backend.auth;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -17,6 +18,7 @@ import com.danny.backend.models.Role;
 import com.danny.backend.models.User;
 import com.danny.backend.repository.UserRepository;
 
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -41,23 +43,22 @@ public class AuthService {
         return Optional.ofNullable(userObject);
     }
 
-    public BaseResponse<String> refreshToken(String refreshToken) {
-        try {
-            // Decode the refresh token to extract user information
-            String username = jwtService.extractUsername(refreshToken);
-            Optional<User> user = repository.findByUsername(username);
+    public Cookie generateCookie(String jwtToken) {
+        Cookie jwtCookie = new Cookie("jwtToken", jwtToken);
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setMaxAge((int) TimeUnit.MINUTES.toSeconds(jwtService.tokenExpirationMs / 60000));
+        jwtCookie.setPath("/");
 
-            if (user.isPresent()) {
-                // Generate a new JWT token
-                String newJwtToken = jwtService.generateToken(user.get());
-                return new BaseResponse<>(true, "Token refreshed successfully.", newJwtToken);
-            } else {
-                return new BaseResponse<>(false, "User not found.", null);
-            }
-        } catch (Exception e) {
-            // Handle any exception that might occur during token refresh
-            return new BaseResponse<>(false, "Error refreshing token.", null);
-        }
+        return jwtCookie;
+    }
+
+    public Cookie generateRevoke() {
+        Cookie revokedCookie = new Cookie("jwtToken", "");
+        revokedCookie.setHttpOnly(true);
+        revokedCookie.setMaxAge(0);
+        revokedCookie.setPath("/");
+
+        return revokedCookie;
     }
 
     public BaseResponse<String> register(RegisterRequest request) {

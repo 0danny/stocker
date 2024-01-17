@@ -19,7 +19,7 @@ import FacebookIcon from "@mui/icons-material/FacebookOutlined"
 import AccountCircleIcon from "@mui/icons-material/AccountCircle"
 import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn"
 
-import { forwardRef, useState } from "react"
+import { forwardRef, useEffect, useState } from "react"
 import "./FrontPage.css"
 
 import { Home } from "../tabs/front/Home"
@@ -137,9 +137,6 @@ const AuthenticationModal = forwardRef((props, ref) => {
         Log(`Received response.`, "AuthModal", jsonResp)
 
         if (jsonResp.status) {
-            //Save the token to local storage.
-            localStorage.setItem("token", jsonResp.payload)
-
             //Redirect to the dashboard.
             window.location.href = "/app"
         } else {
@@ -200,9 +197,6 @@ const AuthenticationModal = forwardRef((props, ref) => {
         Log(`Received register response.`, "AuthModal", jsonResp)
 
         if (jsonResp.status) {
-            //Save the token to local storage.
-            localStorage.setItem("token", jsonResp.payload)
-
             //Redirect to the dashboard.
             window.location.href = "/app"
         } else {

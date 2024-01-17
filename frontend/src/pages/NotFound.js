@@ -1,6 +1,5 @@
 import { Stack, Typography, Box, Card, CardActions, CardContent, Button } from "@mui/material"
 import ShowChart from "@mui/icons-material/ShowChart"
-import "./NotFound.css"
 
 export const NotFound = () => {
     const homeClicked = () => {
