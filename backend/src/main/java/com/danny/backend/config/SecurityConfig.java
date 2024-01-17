@@ -21,7 +21,7 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
-    private static final String[] WHITE_LIST_URL = { "/*", "/static/**", "/api/v1/auth/**" };
+    private static final String[] WHITE_LIST_URL = { "/*", "/static/**", "/api/v1/auth/**", "/api/v1/payment/webhook" };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

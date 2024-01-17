@@ -41,6 +41,25 @@ public class AuthService {
         return Optional.ofNullable(userObject);
     }
 
+    public BaseResponse<String> refreshToken(String refreshToken) {
+        try {
+            // Decode the refresh token to extract user information
+            String username = jwtService.extractUsername(refreshToken);
+            Optional<User> user = repository.findByUsername(username);
+
+            if (user.isPresent()) {
+                // Generate a new JWT token
+                String newJwtToken = jwtService.generateToken(user.get());
+                return new BaseResponse<>(true, "Token refreshed successfully.", newJwtToken);
+            } else {
+                return new BaseResponse<>(false, "User not found.", null);
+            }
+        } catch (Exception e) {
+            // Handle any exception that might occur during token refresh
+            return new BaseResponse<>(false, "Error refreshing token.", null);
+        }
+    }
+
     public BaseResponse<String> register(RegisterRequest request) {
 
         // Could combine these two into a single query if we wanted to, probably would
