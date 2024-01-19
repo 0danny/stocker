@@ -10,7 +10,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,12 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.stripe.Stripe;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Customer;
 import com.stripe.model.Event;
 import com.stripe.model.EventDataObjectDeserializer;
 import com.stripe.model.StripeObject;
-import com.stripe.model.checkout.Session;
+import com.stripe.model.Subscription;
 import com.stripe.net.Webhook;
-import com.stripe.param.checkout.SessionCreateParams;
 
 import jakarta.annotation.PostConstruct;
 
@@ -80,7 +79,7 @@ public class PaymentController {
                         .ok(new BaseResponse<String>(false, "Webhook signature verification failed.", null));
             }
 
-            logger.info("Webhook received: " + event.getType());
+            // logger.info("Webhook received: " + event.getType());
 
             EventDataObjectDeserializer dataObjectDeserializer = event.getDataObjectDeserializer();
             StripeObject stripeObject = null;
@@ -89,23 +88,36 @@ public class PaymentController {
                 stripeObject = dataObjectDeserializer.getObject().get();
 
                 switch (event.getType()) {
+                    case "customer.subscription.deleted":
+
+                        Subscription deletedSession = (Subscription) stripeObject;
+
+                        Optional<User> deleteUser = userRepository
+                                .findByCustomerID(deletedSession.getCustomer());
+
+                        if (deleteUser.isPresent()) {
+                            // Remove all authorities.
+                            deleteUser.get().setAuthorities(Collections.emptyList());
+
+                            userRepository.save(deleteUser.get());
+                        }
+
+                        break;
+
                     case "checkout.session.completed":
 
-                        Session session = (Session) stripeObject;
+                        com.stripe.model.checkout.Session completeSession = (com.stripe.model.checkout.Session) stripeObject;
 
-                        logger.info("Customer Email: " + session.getCustomerEmail());
+                        Optional<User> checkoutUser = userRepository.findByEmail(completeSession.getCustomerEmail());
 
-                        Optional<User> currentUser = userRepository.findByEmail(session.getCustomerEmail());
-
-                        if (currentUser.isPresent()) {
-                            currentUser.get().setAuthorities(
+                        if (checkoutUser.isPresent()) {
+                            checkoutUser.get().setAuthorities(
                                     Collections.singletonList(new SimpleGrantedAuthority("USER_SUBSCRIBED")));
 
-                            userRepository.save(currentUser.get());
+                            // Stitch customer id into object
+                            checkoutUser.get().setCustomerID(completeSession.getCustomer());
 
-                            logger.info("User role updated to premium.");
-                        } else {
-                            logger.info("User not found.");
+                            userRepository.save(checkoutUser.get());
                         }
 
                         break;
@@ -127,27 +139,57 @@ public class PaymentController {
         }
     }
 
+    @GetMapping("/createPortal")
+    public ResponseEntity<BaseResponse<String>> createBillingPortalSession() {
+
+        Optional<User> currentUser = authService.getCurrentUser();
+
+        if (currentUser.isPresent()) {
+            com.stripe.param.billingportal.SessionCreateParams params = com.stripe.param.billingportal.SessionCreateParams
+                    .builder()
+                    .setCustomer(currentUser.get().getCustomerID())
+                    .setReturnUrl("http://localhost:3000/app")
+                    .build();
+
+            try {
+                com.stripe.model.billingportal.Session session = com.stripe.model.billingportal.Session.create(params);
+
+                return ResponseEntity.ok(new BaseResponse<String>(true, "Session created.", session.getUrl()));
+
+            } catch (StripeException e) {
+                logger.error(e.getMessage());
+
+                return ResponseEntity.ok(new BaseResponse<String>(false, "Session creation failed.", null));
+            }
+
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new BaseResponse<>(false, "Error with user token.", null));
+        }
+    }
+
     @GetMapping("/createCheckout")
     public ResponseEntity<BaseResponse<String>> createCheckoutSession() {
 
         Optional<User> currentUser = authService.getCurrentUser();
 
         if (currentUser.isPresent()) {
-            SessionCreateParams params = SessionCreateParams.builder()
-                    .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
+            com.stripe.param.checkout.SessionCreateParams params = com.stripe.param.checkout.SessionCreateParams
+                    .builder()
+                    .setMode(com.stripe.param.checkout.SessionCreateParams.Mode.SUBSCRIPTION)
                     .setSuccessUrl("http://localhost:3000/success")
                     .setCancelUrl("http://localhost:3000/cancel")
                     .setCustomerEmail(currentUser.get().getEmail())
                     .addLineItem(
-                            SessionCreateParams.LineItem.builder()
+                            com.stripe.param.checkout.SessionCreateParams.LineItem.builder()
                                     .setQuantity(1L)
                                     .setPrice("price_1OVqjAEVFaFOMcghAhqjUroa")
                                     .build())
                     .build();
 
-            Session session;
+            com.stripe.model.checkout.Session session;
             try {
-                session = Session.create(params);
+                session = com.stripe.model.checkout.Session.create(params);
             } catch (StripeException e) {
                 logger.error(e.getMessage());
 

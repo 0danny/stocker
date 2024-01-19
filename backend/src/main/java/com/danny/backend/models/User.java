@@ -37,6 +37,9 @@ public class User implements UserDetails {
     @JsonIgnore
     private String password;
 
+    @JsonIgnore
+    private String customerID;
+
     @Enumerated
     @JsonIgnore
     private Role role;
