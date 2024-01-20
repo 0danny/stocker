@@ -12,12 +12,9 @@ import PlayCircle from "@mui/icons-material/PlayCircleFilledWhiteOutlined"
 import Article from "@mui/icons-material/ArticleOutlined"
 import ErrorIcon from "@mui/icons-material/Error"
 
-import Filter3Icon from "@mui/icons-material/Filter3"
-import Filter2Icon from "@mui/icons-material/Filter2"
-import Filter1Icon from "@mui/icons-material/Filter1"
 import DoneIcon from "@mui/icons-material/Done"
 
-import { useState } from "react"
+import { membershipItems } from "../../components/Subscriptions"
 
 import "./Home.css"
 import membersUnderlay from "../../images/front/bg.jpeg"
@@ -111,6 +108,8 @@ const Memberships = () => {
 
     const primaryColor = theme.palette.primary.main
 
+    //Turn the memberships into a list.
+
     return (
         <>
             <Stack
@@ -146,43 +145,17 @@ const Memberships = () => {
                     width={"100%"}
                     padding={5}
                 >
-                    <MembershipItem
-                        name="Explorer"
-                        price="$5 USD"
-                        features={[
-                            "Stock checks on up to 5 websites.",
-                            "Check frequency: Every hour.",
-                            "Email notifications for stock updates.",
-                            "Unlimited access to Stocker marketplace.",
-                        ]}
-                        icon={<Filter3Icon color="primary" />}
-                    />
-
-                    <MembershipItem
-                        name="Enthusiast"
-                        price="$10 USD"
-                        features={[
-                            "Stock checks on up to 15 websites.",
-                            "Check frequency: Every 30 minutes.",
-                            "Email and SMS notifications for stock updates.",
-                            "Unlimited access to Stocker marketplace.",
-                            "Priority customer support.",
-                        ]}
-                        icon={<Filter2Icon color="secondary" />}
-                    />
-
-                    <MembershipItem
-                        name="Professional"
-                        price="$15 USD"
-                        features={[
-                            "Stock checks on up to 25 websites.",
-                            "Check frequency: Every 15 minutes.",
-                            "Email and SMS notifications for stock updates.",
-                            "Unlimited access to Stocker marketplace.",
-                            "Priority customer support.",
-                        ]}
-                        icon={<Filter1Icon color="success" />}
-                    />
+                    {membershipItems.map(function (item, key) {
+                        return (
+                            <MembershipItem
+                                key={key}
+                                name={item.name}
+                                price={item.price}
+                                features={item.features}
+                                icon={item.icon}
+                            />
+                        )
+                    })}
                 </Stack>
             </Stack>
         </>

@@ -344,7 +344,7 @@ const Footer = () => {
         <>
             <Stack
                 width={"100"}
-                sx={{ backgroundColor: "#11508E" }}
+                bgcolor={"primary.main"}
                 color={"white"}
                 padding={3}
                 justifyContent={"center"}
@@ -353,7 +353,7 @@ const Footer = () => {
             >
                 <Stack direction={"row"} marginBottom={4} spacing={{ xs: 5, md: 15 }}>
                     <Stack direction={"column"} spacing={1} alignItems={"center"}>
-                        <ShowChartIcon fontSize="large" color="primary" />
+                        <ShowChartIcon fontSize="large" color="inherit" />
                         <span>Stocker @ 2023</span>
                     </Stack>
 
