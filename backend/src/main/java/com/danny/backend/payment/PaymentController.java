@@ -109,6 +109,29 @@ public class PaymentController {
                 stripeObject = dataObjectDeserializer.getObject().get();
 
                 switch (event.getType()) {
+                    case "customer.subscription.updated":
+                        Subscription updatedSession = (Subscription) stripeObject;
+
+                        // Only excute if previous_attributes is not null
+                        Optional<User> updateUser = userRepository
+                                .findByCustomerID(updatedSession.getCustomer());
+
+                        if (updateUser.isPresent()) {
+                            // Figure out what they just purchased.
+                            Integer productID = Integer.parseInt(updatedSession.getMetadata().get("id"));
+
+                            // Set authority to product ID.
+                            updateUser.get().setAuthorities(new ArrayList<SimpleGrantedAuthority>() {
+                                {
+                                    add(new SimpleGrantedAuthority(productID.toString()));
+                                }
+                            });
+
+                            userRepository.save(updateUser.get());
+                        }
+
+                        break;
+
                     case "customer.subscription.deleted":
 
                         Subscription deletedSession = (Subscription) stripeObject;

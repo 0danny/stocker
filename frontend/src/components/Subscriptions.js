@@ -42,3 +42,7 @@ export const membershipItems = [
         icon: <Filter1Icon color="success" />,
     },
 ]
+
+export const getMemberById = (id) => {
+    return membershipItems.find((member) => member.id == id)
+}

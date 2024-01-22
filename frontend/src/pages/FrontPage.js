@@ -25,11 +25,21 @@ import "./FrontPage.css"
 import { Home } from "../tabs/front/Home"
 import { PlaceHolder } from "../tabs/PlaceHolder"
 import Log from "../components/Logger"
-import { PostRequest } from "../components/Network"
+import { PostRequest, GetRequest } from "../components/Network"
 
 export const FrontPage = () => {
+    const [loggedIn, setLoggedIn] = useState(false)
+    const [username, setUsername] = useState("Unknown")
+
     const [modalState, setModalState] = useState(false)
-    const handleOpen = () => setModalState(true)
+    const handleOpen = () => {
+        if (loggedIn) {
+            window.location.href = "/app"
+            return
+        } else {
+            setModalState(true)
+        }
+    }
     const handleClose = () => setModalState(false)
 
     const [tab, setTab] = useState("home")
@@ -37,6 +47,20 @@ export const FrontPage = () => {
     const handleTabChange = (event, newTab) => {
         setTab(newTab)
     }
+
+    useEffect(() => {
+        //Make request to user/me to check if the user is logged in.
+
+        GetRequest("user/me").then((jsonResp) => {
+            Log(`Received response.`, "FrontPage", jsonResp)
+
+            setLoggedIn(jsonResp.status)
+
+            if (jsonResp.status === true) {
+                setUsername(jsonResp.payload.username)
+            }
+        })
+    }, [])
 
     //TODO
     //Fix the tabs when the window size is small.
@@ -69,6 +93,10 @@ export const FrontPage = () => {
                             onClick={handleOpen}
                             sx={{ marginLeft: "auto" }}
                         >
+                            {loggedIn && (
+                                <span style={{ margin: " 0px 5px 5px 0px" }}>{username}</span>
+                            )}
+
                             <AccountCircleIcon fontSize="inherit" />
                         </IconButton>
                     </Stack>

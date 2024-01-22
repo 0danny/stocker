@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-import { Stack, Tab } from "@mui/material"
+import { Stack, Tab, Button } from "@mui/material"
 import TabContext from "@mui/lab/TabContext"
 import TabList from "@mui/lab/TabList"
 import TabPanel from "@mui/lab/TabPanel"
@@ -18,12 +18,17 @@ import Log from "../components/Logger"
 import { GetRequest } from "../components/Network"
 
 import "./Main.css"
-import { Settings } from "../tabs/main/Settings"
+import { Settings, logoutClicked } from "../tabs/main/Settings"
+import { getMemberById } from "../components/Subscriptions"
 
 export const Main = () => {
     const [tab, setTab] = useState("home")
+    const [subscribed, setSubscribed] = useState(false)
+    const [member, setMember] = useState("")
+
     const [userDetails, setUserDetails] = useState({
         username: "Unknown",
+        authorities: [],
     })
 
     const handleTabChange = (event, newTab) => {
@@ -38,6 +43,12 @@ export const Main = () => {
 
         if (jsonResp.status) {
             setUserDetails(jsonResp.payload)
+
+            if (jsonResp.payload.authorities && jsonResp.payload.authorities.length > 0) {
+                setSubscribed(true)
+
+                setMember(getMemberById(jsonResp.payload.authorities[0].authority).name)
+            }
         } else {
             //Redirect to home.
             window.location.href = "/"
@@ -62,7 +73,9 @@ export const Main = () => {
                         sx={{ paddingLeft: "9px", paddingBottom: "7px" }}
                     >
                         <ShowChart fontSize="large" color="inherit" />
-                        <Typography fontSize={28}>Stocker</Typography>
+                        <Typography fontSize={28}>
+                            Stocker {subscribed ? <b>{member}</b> : ""}
+                        </Typography>
                     </Stack>
 
                     <TabList
@@ -108,25 +121,50 @@ export const Main = () => {
                             {userDetails.username}
                         </Typography>
                         <AccountCircleIcon fontSize="large" color="inherit" />
+                        <Button
+                            size="filled"
+                            variant="outlined"
+                            color="inherit"
+                            sx={{ marginLeft: 2 }}
+                            onClick={logoutClicked}
+                        >
+                            Logout
+                        </Button>
                     </Stack>
                 </AppBar>
 
-                <TabPanel value="home">
-                    <p>Home</p>
-                </TabPanel>
+                <TabPanel value="home">{subscribed ? <p>Home</p> : <NotSubscribedHome />}</TabPanel>
 
                 <TabPanel value="modules">
-                    <p>Modules</p>
+                    {subscribed ? <p>Modules</p> : <NotSubscribed />}
                 </TabPanel>
 
                 <TabPanel value="marketplace">
-                    <p>Marketplace</p>
+                    {subscribed ? <p>Marketplace</p> : <NotSubscribed />}
                 </TabPanel>
 
                 <TabPanel value="settings" sx={{ display: "flex", justifyContent: "center" }}>
                     <Settings />
                 </TabPanel>
             </TabContext>
+        </>
+    )
+}
+
+const NotSubscribedHome = () => {
+    return (
+        <>
+            <span>Not subbed home.!</span>
+        </>
+    )
+}
+
+const NotSubscribed = () => {
+    return (
+        <>
+            <Typography variant="h6" textAlign={"center"}>
+                Please return to the <b>Home</b> tab to purchase a subscription.
+            </Typography>
         </>
     )
 }

@@ -109,17 +109,6 @@ const SubscriptionSettings = () => {
 }
 
 const AccountActions = () => {
-    const logoutClicked = () => {
-        //Make GET request to logout.
-        GetRequest("auth/logout").then((jsonResp) => {
-            Log(`Received logout response.`, "Settings", jsonResp)
-
-            if (jsonResp.status) {
-                window.location.href = "/"
-            }
-        })
-    }
-
     return (
         <>
             <Button variant="contained" onClick={logoutClicked}>
@@ -135,4 +124,15 @@ const SettingsInputWrapper = ({ children }) => {
             {children}
         </Stack>
     )
+}
+
+export const logoutClicked = () => {
+    //Make GET request to logout.
+    GetRequest("auth/logout").then((jsonResp) => {
+        Log(`Received logout response.`, "Settings", jsonResp)
+
+        if (jsonResp.status) {
+            window.location.href = "/"
+        }
+    })
 }
