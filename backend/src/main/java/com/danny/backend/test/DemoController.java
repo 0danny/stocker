@@ -23,7 +23,7 @@ public class DemoController {
     }
 
     @GetMapping("/subscribed")
-    @PreAuthorize("hasAuthority('USER_SUBSCRIBED')")
+    @PreAuthorize("hasAuthority('200')")
     public String subscriptionTest() {
         return "You are subscribed.";
     }

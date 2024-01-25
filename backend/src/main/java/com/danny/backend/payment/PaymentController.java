@@ -26,6 +26,7 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.Event;
 import com.stripe.model.EventDataObjectDeserializer;
+import com.stripe.model.Invoice;
 import com.stripe.param.checkout.SessionCreateParams.LineItem;
 import com.stripe.model.Product;
 import com.stripe.model.ProductCollection;
@@ -56,7 +57,9 @@ public class PaymentController {
     private final Logger logger = LoggerFactory.getLogger(PaymentController.class);
     private String endpointSecret;
     private ProductCollection productCollection;
+
     private Dictionary<Integer, LineItem> lineItems = new Hashtable<>();
+    private Dictionary<String, Integer> itemIdentifiers = new Hashtable<>();
 
     @PostConstruct
     public void init() throws StripeException {
@@ -75,6 +78,9 @@ public class PaymentController {
                             .setQuantity(1L)
                             .setPrice(product.getDefaultPrice())
                             .build());
+
+            // Make a dictionary of <string, LineItem> where string is the price id
+            itemIdentifiers.put(product.getDefaultPrice(), Integer.parseInt(product.getMetadata().get("id")));
         }
     }
 
@@ -109,23 +115,67 @@ public class PaymentController {
                 stripeObject = dataObjectDeserializer.getObject().get();
 
                 switch (event.getType()) {
-                    case "customer.subscription.updated":
-                        Subscription updatedSession = (Subscription) stripeObject;
+                    case "invoice.payment_succeeded":
 
-                        // Only excute if previous_attributes is not null
+                        Invoice invoiceObject = (Invoice) stripeObject;
+
                         Optional<User> updateUser = userRepository
-                                .findByCustomerID(updatedSession.getCustomer());
+                                .findByEmail(invoiceObject.getCustomerEmail());
 
-                        if (updateUser.isPresent()) {
-                            // Figure out what they just purchased.
-                            Integer productID = Integer.parseInt(updatedSession.getMetadata().get("id"));
+                        logger.info("Updating customer: " + invoiceObject.getCustomer() + " | Present?: "
+                                + updateUser.isPresent());
 
-                            // Set authority to product ID.
-                            updateUser.get().setAuthorities(new ArrayList<SimpleGrantedAuthority>() {
-                                {
-                                    add(new SimpleGrantedAuthority(productID.toString()));
+                        // Ensure the payment was successful
+                        if (updateUser.isPresent() && invoiceObject.getStatus().equals("paid")) {
+
+                            // Check billing reason, only execute if reason is subscription_create or
+                            // subscription_update
+
+                            if (invoiceObject.getBillingReason().equals("subscription_create")) {
+                                // Figure out what they just purchased.
+                                String productID = invoiceObject.getLines().getData().get(0).getPrice().getId();
+
+                                // Set authority to product ID.
+                                updateUser.get().setAuthorities(new ArrayList<SimpleGrantedAuthority>() {
+                                    {
+                                        add(new SimpleGrantedAuthority(itemIdentifiers.get(productID).toString()));
+                                    }
+                                });
+
+                                // Stitch customer id into object
+                                updateUser
+                                        .get().setCustomerID(invoiceObject.getCustomer());
+                            }
+
+                            if (invoiceObject.getBillingReason().equals("subscription_update")) {
+
+                                // Due to proration, we can't rely on the product ID to determine the purchase.
+
+                                // Get the customers subscription and check the product ID.
+                                Optional<Subscription> subscription = Optional.empty();
+
+                                try {
+                                    subscription = Optional.ofNullable(Subscription.retrieve(
+                                            invoiceObject.getSubscription()));
+
+                                    if (subscription.isPresent()) {
+                                        // Get the price ID from the subscription
+                                        String priceID = subscription.get().getItems().getData().get(0).getPrice()
+                                                .getId();
+
+                                        // Set authority to product ID.
+                                        updateUser.get().setAuthorities(new ArrayList<SimpleGrantedAuthority>() {
+                                            {
+                                                add(new SimpleGrantedAuthority(
+                                                        itemIdentifiers.get(priceID).toString()));
+                                            }
+                                        });
+                                    }
+
+                                } catch (StripeException e) {
+                                    logger.error(e.getMessage());
                                 }
-                            });
+                            }
 
                             userRepository.save(updateUser.get());
                         }
@@ -144,32 +194,6 @@ public class PaymentController {
                             deleteUser.get().setAuthorities(null);
 
                             userRepository.save(deleteUser.get());
-                        }
-
-                        break;
-
-                    case "checkout.session.completed":
-
-                        com.stripe.model.checkout.Session completeSession = (com.stripe.model.checkout.Session) stripeObject;
-
-                        Optional<User> checkoutUser = userRepository.findByEmail(completeSession.getCustomerEmail());
-
-                        if (checkoutUser.isPresent()) {
-                            // Figure out what they just purchased.
-                            Integer productID = Integer.parseInt(completeSession.getMetadata().get("id"));
-
-                            // Set authority to product ID.
-                            checkoutUser.get().setAuthorities(new ArrayList<SimpleGrantedAuthority>() {
-                                {
-                                    add(new SimpleGrantedAuthority(productID.toString()));
-                                }
-                            });
-
-                            // Stitch customer id into object
-                            checkoutUser
-                                    .get().setCustomerID(completeSession.getCustomer());
-
-                            userRepository.save(checkoutUser.get());
                         }
 
                         break;
