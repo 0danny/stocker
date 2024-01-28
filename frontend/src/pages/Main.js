@@ -8,6 +8,9 @@ import Typography from "@mui/material/Typography"
 import ShowChart from "@mui/icons-material/ShowChart"
 import AppBar from "@mui/material/AppBar"
 
+import { membershipItems } from "../components/Subscriptions"
+import { MembershipItem, Memberships } from "../tabs/front/Home"
+
 import HomeIcon from "@mui/icons-material/Home"
 import ViewModuleIcon from "@mui/icons-material/ViewModule"
 import StorefrontIcon from "@mui/icons-material/Storefront"
@@ -15,11 +18,15 @@ import SettingsIcon from "@mui/icons-material/Settings"
 import AccountCircleIcon from "@mui/icons-material/AccountCircle"
 
 import Log from "../components/Logger"
-import { GetRequest } from "../components/Network"
+import { GetRequest, PostRequest } from "../components/Network"
 
 import "./Main.css"
 import { Settings, logoutClicked } from "../tabs/main/Settings"
 import { getMemberById } from "../components/Subscriptions"
+
+import BuildingsImage from "../images/main/buildings.jpeg"
+import HomeImage from "../images/main/home-icon.png"
+import { Footer } from "./FrontPage"
 
 export const Main = () => {
     const [tab, setTab] = useState("home")
@@ -133,7 +140,9 @@ export const Main = () => {
                     </Stack>
                 </AppBar>
 
-                <TabPanel value="home">{subscribed ? <p>Home</p> : <NotSubscribedHome />}</TabPanel>
+                <TabPanel value="home" sx={{ padding: 0 }}>
+                    {subscribed ? <p>Home</p> : <NotSubscribedHome />}
+                </TabPanel>
 
                 <TabPanel value="modules">
                     {subscribed ? <p>Modules</p> : <NotSubscribed />}
@@ -143,7 +152,7 @@ export const Main = () => {
                     {subscribed ? <p>Marketplace</p> : <NotSubscribed />}
                 </TabPanel>
 
-                <TabPanel value="settings" sx={{ display: "flex", justifyContent: "center" }}>
+                <TabPanel value="settings">
                     <Settings />
                 </TabPanel>
             </TabContext>
@@ -152,9 +161,88 @@ export const Main = () => {
 }
 
 const NotSubscribedHome = () => {
+    const purchaseClicked = (id) => {
+        Log(`Purchase clicked for ${id}.`, "NotSubscribedHome")
+
+        PostRequest("payment/createCheckout", { id: id }).then((jsonResp) => {
+            Log(`Received response from purchase.`, "NotSubscribedHome", jsonResp)
+
+            if (jsonResp.status) {
+                window.location.href = jsonResp.payload
+            }
+        })
+    }
+
     return (
         <>
-            <span>Not subbed home.!</span>
+            <Stack
+                direction="row"
+                height={"450px"}
+                width={"100%"}
+                sx={{ borderBottomRightRadius: 60, borderBottomLeftRadius: 60 }}
+                bgcolor={"primary.dark"}
+                position={"relative"}
+                justifyContent={"center"}
+                alignItems={"center"}
+            >
+                <Stack
+                    direction="row"
+                    sx={{ zIndex: 2 }}
+                    justifyContent={"center"}
+                    alignItems={"center"}
+                    width={"100%"}
+                    height={"100%"}
+                >
+                    <Stack
+                        direction={"column"}
+                        justifyContent={"center"}
+                        alignItems={"center"}
+                        spacing={1}
+                    >
+                        <Typography
+                            variant="h3"
+                            textAlign={"center"}
+                            color={"primary.contrastText"}
+                        >
+                            Welcome to <b>Stocker</b>
+                        </Typography>
+
+                        <Typography
+                            variant="h6"
+                            textAlign={"center"}
+                            color={"primary.contrastText"}
+                        >
+                            <b>Unlock the full potential of your online shopping experience</b> with
+                            Stocker memberships!
+                            <br />
+                            Choose from our range of subscription tiers tailored to suit your
+                            tracking needs.
+                        </Typography>
+                    </Stack>
+
+                    <img src={HomeImage} alt="Home" width={"auto"} height={"70%"}></img>
+                </Stack>
+
+                <img
+                    src={BuildingsImage}
+                    alt="Buildings"
+                    width={"100%"}
+                    height={"100%"}
+                    style={{
+                        position: "absolute",
+                        objectFit: "cover",
+                        zIndex: 1,
+                        objectPosition: "center",
+                        opacity: 0.5,
+                        borderBottomRightRadius: 60,
+                        borderBottomLeftRadius: 60,
+                    }}
+                />
+            </Stack>
+
+            <Memberships onClick={purchaseClicked} />
+
+            <Footer />
         </>
     )
 }

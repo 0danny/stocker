@@ -19,7 +19,7 @@ import { membershipItems } from "../../components/Subscriptions"
 import "./Home.css"
 import membersUnderlay from "../../images/front/bg.jpeg"
 
-export const Home = () => {
+export const Home = ({ membershipClicked }) => {
     return (
         <Stack
             direction={"column"}
@@ -49,7 +49,7 @@ export const Home = () => {
                 </span>
             </Stack>
 
-            <Memberships />
+            <Memberships onClick={membershipClicked} />
 
             <Features />
         </Stack>
@@ -64,7 +64,7 @@ const Features = () => {
     )
 }
 
-const MembershipItem = ({ name, price, features, icon }) => {
+const MembershipItem = ({ name, price, features, icon, onClick }) => {
     return (
         <Card sx={{ width: "380px", display: "flex", flexDirection: "column" }}>
             <CardContent>
@@ -83,8 +83,8 @@ const MembershipItem = ({ name, price, features, icon }) => {
                         return (
                             <ListItem key={key}>
                                 <ListItemAvatar>
-                                    <Avatar>
-                                        <DoneIcon color="primary" />
+                                    <Avatar sx={{ bgcolor: "primary.main" }}>
+                                        <DoneIcon color="primary.contrastText" />
                                     </Avatar>
                                 </ListItemAvatar>
                                 <ListItemText secondary={feature} />
@@ -95,15 +95,21 @@ const MembershipItem = ({ name, price, features, icon }) => {
             </CardContent>
 
             <CardActions disableSpacing sx={{ mt: "auto" }}>
-                <Button size="small" variant="contained" fullWidth sx={{ marginTop: "auto" }}>
-                    Learn More
+                <Button
+                    size="small"
+                    variant="contained"
+                    fullWidth
+                    sx={{ marginTop: "auto" }}
+                    onClick={onClick}
+                >
+                    Purchase
                 </Button>
             </CardActions>
         </Card>
     )
 }
 
-const Memberships = () => {
+export const Memberships = ({ onClick }) => {
     const theme = useTheme()
 
     const primaryColor = theme.palette.primary.main
@@ -153,6 +159,9 @@ const Memberships = () => {
                                 price={item.price}
                                 features={item.features}
                                 icon={item.icon}
+                                onClick={() => {
+                                    onClick(item.id)
+                                }}
                             />
                         )
                     })}

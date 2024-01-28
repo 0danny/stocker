@@ -7,23 +7,28 @@ import Log from "../../components/Logger"
 
 export const Settings = () => {
     return (
-        <Stack direction="column">
-            <Typography variant="h4" textAlign={"center"} marginBottom={3}>
-                <SettingsIcon fontSize="large" sx={{ paddingTop: "10px", marginRight: "5px" }} />
-                Settings
-            </Typography>
+        <Stack direction="column" width={"100%"} alignItems={"center"}>
+            <Stack direction={"column"}>
+                <Typography variant="h4" textAlign={"center"} marginBottom={3}>
+                    <SettingsIcon
+                        fontSize="large"
+                        sx={{ paddingTop: "10px", marginRight: "5px" }}
+                    />
+                    Settings
+                </Typography>
 
-            <Divider>Account Settings</Divider>
+                <Divider>Account Settings</Divider>
 
-            <AccountSettings />
+                <AccountSettings />
 
-            <Divider>Subscription Settings</Divider>
+                <Divider>Subscription Settings</Divider>
 
-            <SubscriptionSettings />
+                <SubscriptionSettings />
 
-            <Divider sx={{ margin: "20px" }}>Account Actions</Divider>
+                <Divider sx={{ margin: "20px" }}>Account Actions</Divider>
 
-            <AccountActions />
+                <AccountActions />
+            </Stack>
         </Stack>
     )
 }

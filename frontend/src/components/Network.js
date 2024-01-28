@@ -1,6 +1,7 @@
 import Log from "./Logger"
 
-const baseURL = process.env.NODE_ENV !== "production" ? "http://localhost:8080/api/v1" : "/api/v1"
+const baseURL =
+    process.env.NODE_ENV !== "production" ? "http://localhost:8080/api/v1" : "/api/v1"
 //We are using relative paths in this file in order to pick our endpoint.
 
 //Post method using fetch

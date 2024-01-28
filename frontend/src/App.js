@@ -7,12 +7,20 @@ import { FrontPage } from "./pages/FrontPage"
 import { Main } from "./pages/Main"
 import { NotFound } from "./pages/NotFound"
 import { Success } from "./pages/Success"
+import { Cancel } from "./pages/Cancel"
+
+const { palette } = createTheme()
 
 const theme = createTheme({
     palette: {
-        /*primary: {
-            main: "#4F5593",
-        },*/
+        primaryDarker: palette.augmentColor({
+            color: {
+                main: "#123EB1",
+            },
+        }),
+        background: {
+            paper: "#E9E9E9", // your color
+        },
     },
 
     typography: {
@@ -29,6 +37,7 @@ export default function App() {
                     <Route index element={<FrontPage />} />
                     <Route path="/app" element={<Main />} />
                     <Route path="/success" element={<Success />} />
+                    <Route path="/cancel" element={<Cancel />} />
                     <Route path="/*" element={<NotFound />} />
                 </Routes>
             </BrowserRouter>

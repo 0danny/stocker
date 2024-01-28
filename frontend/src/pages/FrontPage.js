@@ -105,7 +105,11 @@ export const FrontPage = () => {
                 <Divider />
 
                 <TabPanel value="home">
-                    <Home />
+                    <Home
+                        membershipClicked={() => {
+                            setModalState(true)
+                        }}
+                    />
                 </TabPanel>
 
                 <TabPanel value="t&c">
@@ -254,6 +258,17 @@ const AuthenticationModal = forwardRef((props, ref) => {
         setAlertMessage("")
     }
 
+    //Run login or register when enter is clicked
+    const enterPressed = (event) => {
+        if (event.key === "Enter") {
+            if (signUpMode) {
+                registerClicked()
+            } else {
+                loginClicked()
+            }
+        }
+    }
+
     return (
         <Fade in={props.modalState} ref={ref}>
             <Card
@@ -269,6 +284,7 @@ const AuthenticationModal = forwardRef((props, ref) => {
                     left: "50%",
                     transform: "translate(-50%, -50%)",
                 }}
+                onKeyDown={enterPressed}
             >
                 <CardContent
                     sx={{
@@ -367,7 +383,7 @@ const AuthenticationModal = forwardRef((props, ref) => {
     )
 })
 
-const Footer = () => {
+export const Footer = () => {
     return (
         <>
             <Stack
