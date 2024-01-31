@@ -18,9 +18,7 @@ const theme = createTheme({
                 main: "#123EB1",
             },
         }),
-        background: {
-            paper: "#E9E9E9", // your color
-        },
+        mode: "light",
     },
 
     typography: {

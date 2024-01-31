@@ -1,15 +1,12 @@
 import { useEffect, useState } from "react"
 
-import { Stack, Tab, Button } from "@mui/material"
+import { Stack, Tab, Button, Box, Tabs, LinearProgress } from "@mui/material"
 import TabContext from "@mui/lab/TabContext"
-import TabList from "@mui/lab/TabList"
-import TabPanel from "@mui/lab/TabPanel"
 import Typography from "@mui/material/Typography"
 import ShowChart from "@mui/icons-material/ShowChart"
 import AppBar from "@mui/material/AppBar"
 
-import { membershipItems } from "../components/Subscriptions"
-import { MembershipItem, Memberships } from "../tabs/front/Home"
+import PropTypes from "prop-types"
 
 import HomeIcon from "@mui/icons-material/Home"
 import ViewModuleIcon from "@mui/icons-material/ViewModule"
@@ -18,20 +15,55 @@ import SettingsIcon from "@mui/icons-material/Settings"
 import AccountCircleIcon from "@mui/icons-material/AccountCircle"
 
 import Log from "../components/Logger"
-import { GetRequest, PostRequest } from "../components/Network"
+import { GetRequest } from "../components/Network"
 
 import "./Main.css"
 import { Settings, logoutClicked } from "../tabs/main/Settings"
 import { getMemberById } from "../components/Subscriptions"
+import { Home } from "../tabs/main/Home"
+import { Modules } from "../tabs/main/Modules"
 
-import BuildingsImage from "../images/main/buildings.jpeg"
-import HomeImage from "../images/main/home-icon.png"
-import { Footer } from "./FrontPage"
+function TabPanel(props) {
+    const { children, value, index, usePadding = true, isLoading, ...other } = props
+
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`main-tabpanel-${index}`}
+            aria-labelledby={`main-tab-${index}`}
+            {...other}
+        >
+            {value === index && (
+                <Box sx={{ p: usePadding ? 3 : 0 }}>
+                    {isLoading ? <LinearProgress /> : children}
+                </Box>
+            )}
+        </div>
+    )
+}
+
+TabPanel.propTypes = {
+    children: PropTypes.node,
+    index: PropTypes.number.isRequired,
+    value: PropTypes.number.isRequired,
+}
 
 export const Main = () => {
-    const [tab, setTab] = useState("home")
-    const [subscribed, setSubscribed] = useState(false)
+    const [tab, setTab] = useState(0)
+    const [subscribed, setSubscribed] = useState(0) //0 -> Not Set, 1 -> Subscribed, 2 - Not Subscribed
     const [member, setMember] = useState("")
+
+    const [modules, setModules] = useState([])
+
+    const handleAddModule = (newModule) => {
+        setModules((prevModules) => {
+            const newModules = Array.from({ length: 20 }, () => ({ ...newModule }))
+            return [...prevModules, ...newModules]
+        })
+
+        Log(`Added module ${newModule.moduleName}.`, "Main", newModule)
+    }
 
     const [userDetails, setUserDetails] = useState({
         username: "Unknown",
@@ -51,8 +83,10 @@ export const Main = () => {
         if (jsonResp.status) {
             setUserDetails(jsonResp.payload)
 
+            setSubscribed(2)
+
             if (jsonResp.payload.authorities && jsonResp.payload.authorities.length > 0) {
-                setSubscribed(true)
+                setSubscribed(1)
 
                 setMember(getMemberById(jsonResp.payload.authorities[0].authority).name)
             }
@@ -68,191 +102,98 @@ export const Main = () => {
 
     return (
         <>
-            <TabContext value={tab}>
-                <AppBar position="static" sx={{ flexDirection: "row" }}>
-                    <Stack
-                        direction="row"
-                        width={"100"}
-                        spacing={1}
-                        justifyContent="center"
-                        alignItems="center"
-                        marginRight={4}
-                        sx={{ paddingLeft: "9px", paddingBottom: "7px" }}
-                    >
-                        <ShowChart fontSize="large" color="inherit" />
-                        <Typography fontSize={28}>
-                            Stocker {subscribed ? <b>{member}</b> : ""}
-                        </Typography>
-                    </Stack>
-
-                    <TabList
-                        onChange={handleTabChange}
-                        aria-label="main-tab-control"
-                        variant="scrollable"
-                        scrollButtons="auto"
-                        indicatorColor="secondary"
-                        textColor="inherit"
-                    >
-                        <Tab value="home" icon={<HomeIcon />} iconPosition="start" label="Home" />
-
-                        <Tab
-                            value="modules"
-                            icon={<ViewModuleIcon />}
-                            iconPosition="start"
-                            label="Modules"
-                        />
-
-                        <Tab
-                            value="marketplace"
-                            icon={<StorefrontIcon />}
-                            iconPosition="start"
-                            label="Marketplace"
-                        />
-
-                        <Tab
-                            value="settings"
-                            icon={<SettingsIcon />}
-                            iconPosition="start"
-                            label="Settings"
-                        />
-                    </TabList>
-
-                    <Stack
-                        direction="row"
-                        justifyContent="center"
-                        alignItems="center"
-                        marginLeft="auto"
-                        padding={2}
-                    >
-                        <Typography fontSize={20} marginRight={1} marginBottom={0.5}>
-                            {userDetails.username}
-                        </Typography>
-                        <AccountCircleIcon fontSize="large" color="inherit" />
-                        <Button
-                            size="filled"
-                            variant="outlined"
-                            color="inherit"
-                            sx={{ marginLeft: 2 }}
-                            onClick={logoutClicked}
-                        >
-                            Logout
-                        </Button>
-                    </Stack>
-                </AppBar>
-
-                <TabPanel value="home" sx={{ padding: 0 }}>
-                    {subscribed ? <p>Home</p> : <NotSubscribedHome />}
-                </TabPanel>
-
-                <TabPanel value="modules">
-                    {subscribed ? <p>Modules</p> : <NotSubscribed />}
-                </TabPanel>
-
-                <TabPanel value="marketplace">
-                    {subscribed ? <p>Marketplace</p> : <NotSubscribed />}
-                </TabPanel>
-
-                <TabPanel value="settings">
-                    <Settings />
-                </TabPanel>
-            </TabContext>
-        </>
-    )
-}
-
-const NotSubscribedHome = () => {
-    const purchaseClicked = (id) => {
-        Log(`Purchase clicked for ${id}.`, "NotSubscribedHome")
-
-        PostRequest("payment/createCheckout", { id: id }).then((jsonResp) => {
-            Log(`Received response from purchase.`, "NotSubscribedHome", jsonResp)
-
-            if (jsonResp.status) {
-                window.location.href = jsonResp.payload
-            }
-        })
-    }
-
-    return (
-        <>
-            <Stack
-                direction="row"
-                height={"450px"}
-                width={"100%"}
-                sx={{ borderBottomRightRadius: 60, borderBottomLeftRadius: 60 }}
-                bgcolor={"primary.dark"}
-                position={"relative"}
-                justifyContent={"center"}
-                alignItems={"center"}
+            <AppBar
+                position="static"
+                sx={{ flexDirection: "row" }}
+                color="primary"
+                enableColorOnDark
             >
                 <Stack
                     direction="row"
-                    sx={{ zIndex: 2 }}
-                    justifyContent={"center"}
-                    alignItems={"center"}
-                    width={"100%"}
-                    height={"100%"}
+                    width={"100"}
+                    spacing={1}
+                    justifyContent="center"
+                    alignItems="center"
+                    marginRight={4}
+                    sx={{ paddingLeft: "9px", paddingBottom: "7px" }}
                 >
-                    <Stack
-                        direction={"column"}
-                        justifyContent={"center"}
-                        alignItems={"center"}
-                        spacing={1}
-                    >
-                        <Typography
-                            variant="h3"
-                            textAlign={"center"}
-                            color={"primary.contrastText"}
-                        >
-                            Welcome to <b>Stocker</b>
-                        </Typography>
+                    <ShowChart fontSize="large" color="inherit" />
 
-                        <Typography
-                            variant="h6"
-                            textAlign={"center"}
-                            color={"primary.contrastText"}
-                        >
-                            <b>Unlock the full potential of your online shopping experience</b> with
-                            Stocker memberships!
-                            <br />
-                            Choose from our range of subscription tiers tailored to suit your
-                            tracking needs.
-                        </Typography>
+                    <Stack direction={"column"}>
+                        <Typography fontSize={28}>Stocker</Typography>
                     </Stack>
-
-                    <img src={HomeImage} alt="Home" width={"auto"} height={"70%"}></img>
                 </Stack>
 
-                <img
-                    src={BuildingsImage}
-                    alt="Buildings"
-                    width={"100%"}
-                    height={"100%"}
-                    style={{
-                        position: "absolute",
-                        objectFit: "cover",
-                        zIndex: 1,
-                        objectPosition: "center",
-                        opacity: 0.5,
-                        borderBottomRightRadius: 60,
-                        borderBottomLeftRadius: 60,
-                    }}
-                />
-            </Stack>
+                <Tabs
+                    value={tab}
+                    onChange={handleTabChange}
+                    aria-label="main-tab-control"
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    indicatorColor="secondary"
+                    textColor="inherit"
+                >
+                    <Tab value={0} icon={<HomeIcon />} iconPosition="start" label="Home" />
 
-            <Memberships onClick={purchaseClicked} />
+                    <Tab
+                        value={1}
+                        icon={<ViewModuleIcon />}
+                        iconPosition="start"
+                        label="Modules"
+                        disabled={subscribed == 2}
+                    />
 
-            <Footer />
-        </>
-    )
-}
+                    <Tab
+                        value={2}
+                        icon={<StorefrontIcon />}
+                        iconPosition="start"
+                        label="Marketplace"
+                        disabled={subscribed == 2}
+                    />
+                    <Tab value={3} icon={<SettingsIcon />} iconPosition="start" label="Settings" />
+                </Tabs>
 
-const NotSubscribed = () => {
-    return (
-        <>
-            <Typography variant="h6" textAlign={"center"}>
-                Please return to the <b>Home</b> tab to purchase a subscription.
-            </Typography>
+                <Stack
+                    direction="row"
+                    justifyContent="center"
+                    alignItems="center"
+                    marginLeft="auto"
+                    padding={2}
+                >
+                    <Typography fontSize={20} color="inherit" marginBottom={0.5} marginRight={2}>
+                        {subscribed == 1 ? <b>{member}</b> : ""}
+                    </Typography>
+                    <Typography fontSize={20} marginRight={1} marginBottom={0.5}>
+                        {userDetails.username}
+                    </Typography>
+                    <AccountCircleIcon fontSize="large" color="inherit" />
+                    <Button
+                        size="filled"
+                        variant="outlined"
+                        color="inherit"
+                        sx={{ marginLeft: 2 }}
+                        onClick={logoutClicked}
+                    >
+                        Logout
+                    </Button>
+                </Stack>
+            </AppBar>
+
+            <TabPanel value={tab} index={0} usePadding={false} isLoading={subscribed == 0}>
+                <Home subscribed={subscribed == 1} />
+            </TabPanel>
+
+            <TabPanel value={tab} index={1} usePadding={false} isLoading={subscribed == 0}>
+                <Modules modules={modules} handleAddModule={handleAddModule} />
+            </TabPanel>
+
+            <TabPanel value={tab} index={2} isLoading={subscribed == 0}>
+                <p>Marketplace</p>
+            </TabPanel>
+
+            <TabPanel value={tab} index={3} isLoading={subscribed == 0}>
+                <Settings />
+            </TabPanel>
         </>
     )
 }
