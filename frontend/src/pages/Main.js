@@ -19,7 +19,7 @@ import { GetRequest } from "../components/Network"
 
 import "./Main.css"
 import { Settings, logoutClicked } from "../tabs/main/Settings"
-import { getMemberById } from "../components/Subscriptions"
+import { getMemberById, membershipId, setMembershipId } from "../components/Subscriptions"
 import { Home } from "../tabs/main/Home"
 import { Modules } from "../tabs/main/Modules"
 
@@ -58,7 +58,7 @@ export const Main = () => {
 
     const handleAddModule = (newModule) => {
         setModules((prevModules) => {
-            const newModules = Array.from({ length: 20 }, () => ({ ...newModule }))
+            const newModules = Array.from({ length: 5 }, () => ({ ...newModule }))
             return [...prevModules, ...newModules]
         })
 
@@ -89,6 +89,8 @@ export const Main = () => {
                 setSubscribed(1)
 
                 setMember(getMemberById(jsonResp.payload.authorities[0].authority).name)
+
+                setMembershipId(jsonResp.payload.authorities[0].authority)
             }
         } else {
             //Redirect to home.

@@ -10,11 +10,18 @@ import {
     CardActions,
     Typography,
     TextField,
-    Grid,
     Box,
+    Divider,
+    Radio,
+    RadioGroup,
+    FormControlLabel,
+    FormControl,
+    FormLabel,
 } from "@mui/material"
 import { useState, forwardRef, useRef } from "react"
 import Log from "../../components/Logger"
+import { getFrequencies } from "../../components/Subscriptions"
+import { useTheme } from "@emotion/react"
 
 const modalStyle = {
     position: "absolute",
@@ -34,6 +41,8 @@ export const Modules = ({ handleAddModule, modules }) => {
     const handleCreationClose = () => setCreationModalState(false)
     const handleCreationOpen = () => setCreationModalState(true)
 
+    const [selectedModule, setSelectedModule] = useState("")
+
     return (
         <>
             <Paper sx={{ width: "100%", padding: 2 }} elevation={3}>
@@ -52,9 +61,10 @@ export const Modules = ({ handleAddModule, modules }) => {
                 padding={1}
             >
                 {modules.map((module, key) => {
-                    return <ModuleItem module={module} />
+                    return <ModuleItem key={key} module={module} />
                 })}
             </Box>
+
             <Modal
                 open={creationModalState}
                 onClose={handleCreationClose}
@@ -83,6 +93,7 @@ const CreationModal = forwardRef((props, ref) => {
     const [description, setDescription] = useState("")
     const [trackingUrl, setTrackingUrl] = useState("")
     const [checkingToken, setCheckingToken] = useState("")
+    const [frequency, setFrequency] = useState("daily")
 
     const createModule = () => {
         const newModule = {
@@ -90,11 +101,24 @@ const CreationModal = forwardRef((props, ref) => {
             description: description,
             trackingUrl: trackingUrl,
             checkingToken: checkingToken,
+            frequency: frequency,
+            iconUrl: "",
         }
+
+        newModule.iconUrl = parseURL(trackingUrl)
 
         props.onAddModule(newModule)
 
         props.onClose()
+    }
+
+    const parseURL = (trackingUrl) => {
+        //Parse the URL and get the domain name
+        const url = new URL(trackingUrl)
+
+        const domain = url.protocol + "//" + url.hostname
+
+        return `${domain}/favicon.ico`
     }
 
     return (
@@ -115,6 +139,7 @@ const CreationModal = forwardRef((props, ref) => {
                             placeholder="Module Name..."
                             variant="outlined"
                             size="small"
+                            autoComplete="off"
                             value={moduleName}
                             onChange={(e) => setModuleName(e.target.value)}
                             fullWidth
@@ -127,6 +152,7 @@ const CreationModal = forwardRef((props, ref) => {
                             size="small"
                             multiline
                             rows={4}
+                            autoComplete="off"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             fullWidth
@@ -137,6 +163,7 @@ const CreationModal = forwardRef((props, ref) => {
                             placeholder="Tracking URL..."
                             variant="outlined"
                             size="small"
+                            autoComplete="off"
                             value={trackingUrl}
                             onChange={(e) => setTrackingUrl(e.target.value)}
                             fullWidth
@@ -147,10 +174,27 @@ const CreationModal = forwardRef((props, ref) => {
                             placeholder="Checking Token..."
                             variant="outlined"
                             size="small"
+                            autoComplete="off"
                             value={checkingToken}
                             onChange={(e) => setCheckingToken(e.target.value)}
                             fullWidth
                         />
+
+                        <Divider />
+
+                        <FormControl>
+                            <FormLabel id="modules-frequency-label">Frequency</FormLabel>
+                            <RadioGroup
+                                row
+                                aria-labelledby="modules-frequency-label"
+                                name="modules-frequency-group"
+                                defaultValue={"daily"}
+                                value={frequency}
+                                onChange={(e) => setFrequency(e.target.value)}
+                            >
+                                {getFrequencies()}
+                            </RadioGroup>
+                        </FormControl>
                     </Stack>
                 </CardContent>
                 <CardActions>
@@ -164,7 +208,7 @@ const CreationModal = forwardRef((props, ref) => {
 })
 
 const ModuleItem = ({ module }) => {
-    const { moduleName, description, trackingUrl, checkingToken } = module
+    const { moduleName, description, trackingUrl, checkingToken, frequency, iconUrl } = module
 
     return (
         <Stack
@@ -173,6 +217,14 @@ const ModuleItem = ({ module }) => {
             borderColor={"primary.main"}
             borderRadius={3}
             boxShadow={5}
+            sx={{
+                border: "1px solid transparent",
+                transition: "border-color 0.3s ease",
+                "&:hover": {
+                    borderColor: "primary.main",
+                    cursor: "pointer",
+                },
+            }}
         >
             <Typography variant="h5" component="div">
                 {moduleName}
@@ -185,6 +237,9 @@ const ModuleItem = ({ module }) => {
             </Typography>
             <Typography variant="body2" color="text.secondary" gutterBottom>
                 Checking Token: {checkingToken}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+                Frequency: {frequency}
             </Typography>
 
             <Stack direction={"row"} justifyContent={"center"}>
