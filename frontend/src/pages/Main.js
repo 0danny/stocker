@@ -57,10 +57,7 @@ export const Main = () => {
     const [modules, setModules] = useState([])
 
     const handleAddModule = (newModule) => {
-        setModules((prevModules) => {
-            const newModules = Array.from({ length: 5 }, () => ({ ...newModule }))
-            return [...prevModules, ...newModules]
-        })
+        setModules([...modules, newModule])
 
         Log(`Added module ${newModule.moduleName}.`, "Main", newModule)
     }
@@ -186,7 +183,11 @@ export const Main = () => {
             </TabPanel>
 
             <TabPanel value={tab} index={1} usePadding={false} isLoading={subscribed == 0}>
-                <Modules modules={modules} handleAddModule={handleAddModule} />
+                <Modules
+                    modules={modules}
+                    handleAddModule={handleAddModule}
+                    setModules={setModules}
+                />
             </TabPanel>
 
             <TabPanel value={tab} index={2} isLoading={subscribed == 0}>

@@ -17,11 +17,17 @@ import {
     FormControlLabel,
     FormControl,
     FormLabel,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    Checkbox,
 } from "@mui/material"
 import { useState, forwardRef, useRef } from "react"
 import Log from "../../components/Logger"
 import { getFrequencies } from "../../components/Subscriptions"
 import { useTheme } from "@emotion/react"
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
+import SettingsIcon from "@mui/icons-material/Settings"
 
 const modalStyle = {
     position: "absolute",
@@ -36,34 +42,70 @@ const modalStyle = {
     p: 2,
 }
 
-export const Modules = ({ handleAddModule, modules }) => {
+export const Modules = ({ handleAddModule, modules, setModules }) => {
     const [creationModalState, setCreationModalState] = useState(false)
     const handleCreationClose = () => setCreationModalState(false)
     const handleCreationOpen = () => setCreationModalState(true)
 
-    const [selectedModule, setSelectedModule] = useState("")
+    const [selectedModule, setSelectedModule] = useState(0)
+
+    const moduleDelete = () => {
+        if (modules.length > 0) {
+            Log(`Deleting module...`, "Modules", modules[selectedModule])
+
+            //TODO: Logic for deleting the module.
+
+            setModules(modules.filter((module, index) => index !== selectedModule))
+        }
+    }
+
+    const moduleClick = (index) => {
+        setSelectedModule(index)
+    }
 
     return (
         <>
-            <Paper sx={{ width: "100%", padding: 2 }} elevation={3}>
+            <Stack direction={"row"} sx={{ width: "100%", padding: 2, boxShadow: 3 }} spacing={2}>
                 <Button variant="contained" onClick={handleCreationOpen}>
                     Add Module
                 </Button>
-            </Paper>
+                <Button variant="contained" onClick={moduleDelete}>
+                    Delete Module
+                </Button>
+            </Stack>
 
-            <Box
-                width={"100%"}
-                sx={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
-                    gridGap: "15px",
-                }}
-                padding={1}
-            >
-                {modules.map((module, key) => {
-                    return <ModuleItem key={key} module={module} />
-                })}
-            </Box>
+            {modules.length === 0 ? (
+                <Typography variant="h6" component="div" textAlign={"center"} marginTop={5}>
+                    <b>You have no modules.</b> Click the "Add Module" button to get started or
+                    visit the marketplace.
+                </Typography>
+            ) : (
+                <RadioGroup
+                    width={"100%"}
+                    sx={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+                        gridGap: "15px",
+                        padding: 1,
+                    }}
+                    defaultValue={"0"}
+                    value={selectedModule}
+                    onChange={(e) => setSelectedModule(e.target.value)}
+                    aria-labelledby="modules-modulelist-button"
+                    name="modules-modulelist-group"
+                >
+                    {modules.map((module, key) => {
+                        return (
+                            <ModuleItem
+                                key={key}
+                                module={module}
+                                index={key}
+                                onClick={moduleClick}
+                            />
+                        )
+                    })}
+                </RadioGroup>
+            )}
 
             <Modal
                 open={creationModalState}
@@ -106,6 +148,8 @@ const CreationModal = forwardRef((props, ref) => {
         }
 
         newModule.iconUrl = parseURL(trackingUrl)
+
+        //TODO: Logic for adding module.
 
         props.onAddModule(newModule)
 
@@ -169,32 +213,41 @@ const CreationModal = forwardRef((props, ref) => {
                             fullWidth
                         />
 
-                        <TextField
-                            label="Checking Token"
-                            placeholder="Checking Token..."
-                            variant="outlined"
-                            size="small"
-                            autoComplete="off"
-                            value={checkingToken}
-                            onChange={(e) => setCheckingToken(e.target.value)}
-                            fullWidth
-                        />
-
-                        <Divider />
-
-                        <FormControl>
-                            <FormLabel id="modules-frequency-label">Frequency</FormLabel>
-                            <RadioGroup
-                                row
-                                aria-labelledby="modules-frequency-label"
-                                name="modules-frequency-group"
-                                defaultValue={"daily"}
-                                value={frequency}
-                                onChange={(e) => setFrequency(e.target.value)}
+                        <Accordion>
+                            <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="modules-modal-settings-content"
+                                id="modules-modal-settings"
                             >
-                                {getFrequencies()}
-                            </RadioGroup>
-                        </FormControl>
+                                <SettingsIcon sx={{ marginRight: 1 }} />
+                                Advanced Settings
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <TextField
+                                    label="Checking Token"
+                                    placeholder="Checking Token..."
+                                    variant="outlined"
+                                    size="small"
+                                    autoComplete="off"
+                                    value={checkingToken}
+                                    onChange={(e) => setCheckingToken(e.target.value)}
+                                    fullWidth
+                                />
+                                <FormControl sx={{ marginTop: 2 }}>
+                                    <FormLabel id="modules-frequency-label">Frequency</FormLabel>
+                                    <RadioGroup
+                                        row
+                                        aria-labelledby="modules-frequency-label"
+                                        name="modules-frequency-group"
+                                        defaultValue={"daily"}
+                                        value={frequency}
+                                        onChange={(e) => setFrequency(e.target.value)}
+                                    >
+                                        {getFrequencies()}
+                                    </RadioGroup>
+                                </FormControl>
+                            </AccordionDetails>
+                        </Accordion>
                     </Stack>
                 </CardContent>
                 <CardActions>
@@ -207,7 +260,7 @@ const CreationModal = forwardRef((props, ref) => {
     )
 })
 
-const ModuleItem = ({ module }) => {
+const ModuleItem = ({ module, index, onClick }) => {
     const { moduleName, description, trackingUrl, checkingToken, frequency, iconUrl } = module
 
     return (
@@ -217,6 +270,7 @@ const ModuleItem = ({ module }) => {
             borderColor={"primary.main"}
             borderRadius={3}
             boxShadow={5}
+            position={"relative"}
             sx={{
                 border: "1px solid transparent",
                 transition: "border-color 0.3s ease",
@@ -225,7 +279,17 @@ const ModuleItem = ({ module }) => {
                     cursor: "pointer",
                 },
             }}
+            onClick={() => onClick(index)}
         >
+            <Radio
+                value={index}
+                sx={{
+                    position: "absolute",
+                    top: 2,
+                    right: 2,
+                }}
+            />
+
             <Typography variant="h5" component="div">
                 {moduleName}
             </Typography>
